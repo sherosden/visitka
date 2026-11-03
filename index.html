@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визитка — Ростислав</title>
+    <script>
+        /* 1) класс .js: «скрыто до появления» включаем только если скрипты точно работают —
+              на просмотрщиках без JS (быстрый просмотр файлов на телефоне) весь контент виден;
+           2) если rAF не тикает (сонная вкладка / встроенное превью) — не идут и CSS-переходы,
+              тогда мгновенно применяем состояния через .no-anim */
+        (function () {
+            document.documentElement.classList.add('js');
+            let rafOk = false;
+            requestAnimationFrame(function () { rafOk = true; });
+            setTimeout(function () {
+                if (!rafOk) document.documentElement.classList.add('no-anim');
+            }, 90);
+        })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            /* тёмно-серая страница: средняя точка градиента — ровно #474a51;
+               без background-attachment: fixed — iOS Safari его не поддерживает */
+            background: linear-gradient(170deg, #52555c 0%, #474a51 45%, #3f4248 100%);
+            background-color: #474a51;   /* страховка, если градиент не поддерживается */
+            padding: 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            margin: auto 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            color: #eaeaea;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560, #0f3460);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .role {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #e94560;
+            margin-bottom: 28px;
+        }
+
+        .interests {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .interest {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        .interest-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .interest-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .interest-text {
+            font-size: 13px;
+            color: rgba(234, 234, 234, 0.65);
+            margin-top: 2px;
+        }
+
+        .interest--column {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .interest-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* ================= ТРЕЙДИНГ: BTC-видео + биржи ================= */
+        .trading-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        /* ================= УЧЁБА: стопка учебников + всплывающее расписание ================= */
+        .study-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .book-stack {
+            flex: 0 0 118px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0 12px;
+            position: relative;
+        }
+
+        .book-stack::after {                    /* тень под стопкой */
+            content: '';
+            position: absolute;
+            left: 5%; right: 5%; bottom: 2px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.42);
+            filter: blur(3px);
+            z-index: -1;
+        }
+
+        .book {
+            height: 25px;
+            width: 116px;
+            border-radius: 3px 8px 8px 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.93);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -3px 5px rgba(0, 0, 0, 0.35),
+                0 3px 7px rgba(0, 0, 0, 0.38);
+            position: relative;
+        }
+
+        .book::after {                          /* обрез страниц справа */
+            content: '';
+            position: absolute;
+            right: 6px; top: 3px; bottom: 3px;
+            width: 6px;
+            border-radius: 2px;
+            background: repeating-linear-gradient(90deg,
+                rgba(255, 255, 255, 0.75) 0 1px, rgba(255, 255, 255, 0.24) 1px 2px);
+        }
+
+        .bk1 { background: linear-gradient(180deg, #8a3a4c, #5a2430); transform: rotate(-1.3deg) translateX(3px); }
+        .bk2 { background: linear-gradient(180deg, #33706d, #204449); transform: rotate(1.1deg) translateX(-3px); margin-top: -4px; }
+        .bk3 { background: linear-gradient(180deg, #55639c, #333f68); transform: rotate(-1.5deg) translateX(2px); margin-top: -4px; }
+        .bk4 { background: linear-gradient(180deg, #8d7a44, #5d4e22); transform: rotate(1.2deg) translateX(-2px); margin-top: -4px; }
+
+        .sched-wrap {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .sched {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+            animation: schedFloat 4.4s ease-in-out infinite alternate;
+        }
+
+        .sched::before {                        /* хвостик в сторону учебников */
+            content: '';
+            position: absolute;
+            left: -6.5px; bottom: 13px;
+            width: 13px; height: 13px;
+            transform: rotate(45deg);
+            background: linear-gradient(200deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.07));
+            border-left: 1px solid rgba(255, 255, 255, 0.18);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        @keyframes schedFloat {
+            from { transform: translateY(0); }
+            to   { transform: translateY(-4px); }
+        }
+
+        .sched-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .sched-what { color: rgba(238, 241, 246, 0.85); }
+        .sched-time {
+            font-weight: 700;
+            color: #ffd28a;
+            font-variant-numeric: tabular-nums;
+            min-width: 78px;
+        }
+        .sched-row--study .sched-time { color: #9ec0ff; }
+
+        /* ================= ПОЯВЛЕНИЕ РАЗДЕЛОВ: «цепочка 150px» ================= */
+        /* скрытие «до появления» — только когда скрипты точно работают (html.js):
+           на просмотрщиках без JS страница статична, и весь контент виден сразу */
+        html.js .reveal {
+            opacity: 0;
+            transform: translateY(46px);
+            transition: opacity 0.65s ease, transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+            will-change: opacity, transform;
+        }
+
+        html.js .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* учебные плюшки оживают, когда раздел появился */
+        html.js .study-block .book {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.45, 0.64, 1);
+        }
+        html.js .study-block.visible .book { opacity: 1; }
+        html.js .study-block.visible .bk1 { transform: rotate(-1.3deg) translateX(3px);  transition-delay: 0.12s; }
+        html.js .study-block.visible .bk2 { transform: rotate(1.1deg)  translateX(-3px); transition-delay: 0.2s; }
+        html.js .study-block.visible .bk3 { transform: rotate(-1.5deg) translateX(2px);  transition-delay: 0.28s; }
+        html.js .study-block.visible .bk4 { transform: rotate(1.2deg)  translateX(-2px); transition-delay: 0.36s; }
+
+        html.js .sched-wrap {                   /* расписание выпрыгивает после книг */
+            opacity: 0;
+            transform: translateY(14px) scale(0.86);
+            transform-origin: 88% 100%;
+            transition: opacity 0.5s ease 0.55s,
+                        transform 0.6s cubic-bezier(0.32, 1.55, 0.55, 1) 0.55s;
+        }
+
+        html.js .study-block.visible .sched-wrap { opacity: 1; transform: none; }
+
+        /* в замороженной вкладке CSS-переходы не идут — состояния применяются мгновенно */
+        .no-anim .reveal,
+        .no-anim .study-block .book,
+        .no-anim .sched-wrap { transition: none !important; }
+        .no-anim .sched { animation: none !important; }
+
+        /* ================= МОБИЛЬНАЯ ВЁРСТКА (телефон) ================= */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+
+            .card {
+                padding: 26px 18px;
+                border-radius: 16px;
+            }
+            .card:hover { transform: none; }          /* на тач-экране hover «залипает» */
+
+            .interest {
+                padding: 12px 14px;
+                border-radius: 11px;
+            }
+
+            /* биржевые плашки: чуть крупнее зона тапа — палец, а не курсор */
+            .ex-logo { padding: 10px 12px; }
+
+            /* учебный ряд: чуть уже стопка, чтобы расписание дышало */
+            .study-row { gap: 10px; }
+            .book-stack { flex: 0 0 96px; }
+            .book {
+                width: 94px;
+                height: 22px;
+                font-size: 9.5px;
+                border-radius: 3px 7px 7px 3px;
+            }
+            .book::after { right: 5px; top: 2px; bottom: 2px; width: 5px; }
+            .sched { padding: 8px 10px; border-radius: 11px; }
+            .sched-row { font-size: 12.5px; }
+            .sched-time { min-width: 66px; }
+
+            .divider { margin: 18px 0; }
+            .footer { font-size: 11px; }
+        }
+
+        /* совсем узкие экраны (320–400px): ужимаем стопку и расписание сильнее */
+        @media (max-width: 400px) {
+            .book-stack { flex: 0 0 84px; }
+            .book {
+                width: 82px;
+                height: 20px;
+                font-size: 8.5px;
+            }
+            .book::after { display: none; }            /* обрез страниц не лезет на узкой обложке */
+            .sched { padding: 8px 9px; }
+            .sched-row { font-size: 11.5px; gap: 8px; }
+            .sched-time { min-width: 56px; }
+        }
+
+        /* --- «видеоплеер» с графиком BTC за 10 лет --- */
+        .btc-video {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+            aspect-ratio: 212 / 132;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #171323 0%, #0d0a16 100%);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .btc-video #btcChart {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* шапка плеера: бейдж и цена — вне графика */
+        .vv-head {
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 7px 4px;
+        }
+
+        .vv-stage {
+            position: relative;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .vv-badge {
+            font-size: 7px;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.75);
+            background: rgba(5, 3, 8, 0.55);
+            padding: 2px 6px;
+            border-radius: 999px;
+        }
+
+        .vv-price {
+            font-size: 11px;
+            font-weight: 700;
+            color: #57d68d;
+            background: rgba(5, 3, 8, 0.55);
+            padding: 1px 7px;
+            border-radius: 6px;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.5s ease;
+        }
+
+        .vv-price.down { color: #ff6d7e; }
+
+        .vv-center {
+            position: absolute;
+            left: 50%;
+            top: 47%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(5, 3, 8, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .vv-center svg { width: 14px; height: 14px; fill: #fff; margin-left: 2px; }
+        .btc-video.paused .vv-center { opacity: 1; }
+
+        /* кнопка «смотреть снова» — чип в шапке, график не перекрывает */
+        .vv-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .vv-replay {
+            width: 16px;
+            height: 16px;
+            border-radius: 5px;
+            background: rgba(5, 3, 8, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .vv-replay svg { width: 9px; height: 9px; fill: #fff; }
+
+        .btc-video.ended .vv-replay { opacity: 1; }
+
+        .vv-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.14);
+            z-index: 3;
+        }
+
+        .vv-progress i {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #f7931a, #ffd08a);
+        }
+
+        /* --- логотипы бирж --- */
+        .exchanges {
+            flex: 0 0 106px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ex-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 11px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #eaeaea;
+            transition: background 0.25s ease, border-color 0.25s ease,
+                        box-shadow 0.25s ease, transform 0.25s ease;
+        }
+
+        .ex-logo svg { width: 17px; height: 17px; flex-shrink: 0; }
+        .ex-logo span { font-size: 12.5px; font-weight: 600; letter-spacing: 0.3px; }
+
+        .ex-logo:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .ex-logo.binance, .ex-logo.bybit, .ex-logo.bingx { justify-content: center; }
+        .ex-logo.binance svg, .ex-logo.bybit svg, .ex-logo.bingx svg {
+            height: 17px;
+            width: auto;
+            max-width: 100%;
+            flex-shrink: 1;
+        }
+
+        .ex-logo.binance:hover {
+            border-color: rgba(240, 185, 11, 0.55);
+            box-shadow: 0 4px 14px rgba(240, 185, 11, 0.15);
+        }
+
+        .ex-logo.bybit:hover {
+            border-color: rgba(247, 166, 0, 0.55);
+            box-shadow: 0 4px 14px rgba(247, 166, 0, 0.15);
+        }
+
+        .ex-logo.bingx:hover {
+            border-color: rgba(42, 84, 254, 0.6);
+            box-shadow: 0 4px 14px rgba(42, 84, 254, 0.18);
+        }
+
+        /* ================= АРЕНА «ОЖИВШИХ ШАХМАТ» ================= */
+        .chess-video {
+            position: relative;
+            width: min(320px, 100%);
+            aspect-ratio: 100 / 102;
+            margin: 12px auto 2px;
+            border-radius: 10px;
+            overflow: hidden;
+            container-type: inline-size;   /* cqw = ширина кадра, для масштабирования фигур */
+            background: linear-gradient(180deg, #2a2138 0%, #171126 55%, #0b0712 100%);
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+                inset 0 -24px 60px rgba(0, 0, 0, 0.5);
+            perspective: 1300px;
+            perspective-origin: 50% 40%;
+        }
+
+        /* сцена — наклонная плоскость (вид сбоку, камера почти на уровне стола) */
+        .scene {
+            --tilt: 72deg;               /* синхронизировано с JS: TILT_DEG = 72 */
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+            transform: translateY(10%) rotateX(var(--tilt)) scale(1.3);
+        }
+
+        /* --- каменный пол зала (лежит в наклонной плоскости) --- */
+        .floor {
+            position: absolute;
+            left: -45%; right: -45%; top: -28%; bottom: -22%;
+            background: radial-gradient(ellipse 64% 44% at 50% 36%,
+                rgba(96, 86, 78, 0.95) 0%, rgba(64, 56, 50, 0.88) 40%,
+                rgba(40, 34, 31, 0.5) 66%, rgba(26, 22, 19, 0) 88%);
+        }
+
+        /* тёплые пятна света от факелов (лежат на плоскости) */
+        .glow {
+            position: absolute;
+            width: 40%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 150, 50, 0.38), rgba(255, 120, 30, 0) 70%);
+            mix-blend-mode: screen;
+            animation: glowpulse 2.4s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes glowpulse {
+            from { opacity: 0.55; transform: scale(1); }
+            to   { opacity: 1;    transform: scale(1.14); }
+        }
+
+        /* --- мраморный пьедестал --- */
+        .slab {
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        .slabA {
+            left: 12%; width: 76%;
+            top: 10.5%; height: 71%;
+            background: linear-gradient(180deg, #b39a78 0%, #8f7660 45%, #6b5540 100%);
+            box-shadow:
+                0 10px 24px rgba(0, 0, 0, 0.6),
+                inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+                inset 0 5px 0 rgba(255, 238, 200, 0.28),
+                inset 0 -4px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        .slabB {
+            left: 6.5%; width: 87%;
+            top: 80.5%; height: 15%;
+            background: linear-gradient(180deg, #8a7057, #413325);
+            box-shadow:
+                0 16px 32px rgba(0, 0, 0, 0.75),
+                inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+                inset 0 3px 0 rgba(255, 222, 170, 0.2);
+        }
+
+        /* всё, что «стоит» на плоскости — билборды, смотрящие в камеру */
+        .stand {
+            position: absolute;
+            transform: rotateX(calc(-1 * var(--tilt)));
+            transform-origin: 50% 100%;
+        }
+
+        /* --- факелы --- */
+        .torch { width: 4.4%; height: 30%; }
+        .torch.tl { left: 13.5%; bottom: 71%; }
+        .torch.tr { right: 13.5%; bottom: 71%; }
+        .torch::before {                      /* древко */
+            content: '';
+            position: absolute;
+            left: 40%; right: 40%;
+            top: 26%; bottom: 0;
+            background: linear-gradient(180deg, #5d4632, #241812);
+            border-radius: 1px;
+        }
+        .torch::after {                       /* чаша */
+            content: '';
+            position: absolute;
+            left: 50%; top: 20%;
+            width: 16px; height: 9px;
+            transform: translateX(-50%);
+            background: #7a6449;
+            border-radius: 2px 2px 4px 4px;
+        }
+        .flame {
+            position: absolute;
+            left: 50%; top: 0;
+            width: 18px; height: 27px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle at 50% 75%, #fff3c0 0%, #ffc04d 35%, #ff8a1e 55%, rgba(255, 120, 20, 0) 75%);
+            filter: blur(0.7px);
+            border-radius: 50% 50% 42% 42%;
+            animation: flick 0.8s ease-in-out infinite alternate;
+        }
+        .torch.tr .flame { animation-delay: 0.45s; }
+
+        @keyframes flick {
+            from { transform: translateX(-50%) scale(1) skewX(0deg); opacity: 0.9; }
+            to   { transform: translateX(-50%) scale(0.92, 1.16) skewX(-4deg); opacity: 1; }
+        }
+
+        /* --- знамёна SPQR --- */
+        .banner { width: 11%; height: 36%; }
+        .banner.bl { left: 2.5%; bottom: 84%; }
+        .banner.br { right: 2.5%; bottom: 84%; }
+        .banner::before {                     /* древко знамени */
+            content: '';
+            position: absolute;
+            left: 47%; width: 6%;
+            top: 0; bottom: 0;
+            background: linear-gradient(180deg, #8a7050, #3c2e20);
+        }
+        .flag {
+            position: absolute;
+            left: 53%; top: 2%;
+            width: 50%; height: 16%;
+            background: linear-gradient(180deg, #9c2b35, #5d1620);
+            color: #e6c377;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 5.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+            transform-origin: 0 50%;
+            animation: wave 3.4s ease-in-out infinite alternate;
+        }
+        .banner.br .flag { left: auto; right: 53%; transform-origin: 100% 50%; }
+
+        @keyframes wave {
+            from { transform: rotateZ(-2deg) skewY(2deg); }
+            to   { transform: rotateZ(2deg) skewY(-3deg); }
+        }
+
+        /* --- доска (лежит в наклонной плоскости) --- */
+        .board-layer {
+            position: absolute;
+            left: 16%; width: 68%;
+            top: 15%; height: 66.5%;
+            transform-style: preserve-3d;
+            background: #6e5941;
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 4px #4e3b28,
+                0 0 0 9px #2a1e12,
+                0 18px 36px rgba(0, 0, 0, 0.65),
+                inset 0 2px 0 rgba(255, 215, 150, 0.22);
+        }
+
+        .board-inner {
+            position: absolute;
+            inset: 2.6%;
+            /* статический шахматный узор на чистом CSS: доска видна даже без JS
+               (когда JS работает, настоящие квадраты ложатся ровно поверх узора) */
+            background: repeating-conic-gradient(#cdb289 0% 25%, #6d5542 25% 50%) 0 0 / 25% 25%;
+            transform-style: preserve-3d;
+            /* доска повернута в плоскости на 90° влево: ближний край = вертикаль a */
+            transform: rotateZ(-90deg);
+        }
+
+        .grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+        }
+
+        .sq-light { background: linear-gradient(160deg, #cdb289, #b89c74); box-shadow: inset 0 0 0 1px rgba(30, 20, 10, 0.16); }
+        .sq-dark  { background: linear-gradient(160deg, #6d5542, #57432f); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.28); }
+
+        .pieces {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* --- фигуры-билборды в экранном слое (стоят вертикально над центром клетки) --- */
+        .piece {
+            position: absolute;
+            transform-origin: 50% 100%;
+            transition: left 0.95s cubic-bezier(0.45, 0.15, 0.25, 1),
+                        top 0.95s cubic-bezier(0.45, 0.15, 0.25, 1);
+            will-change: left, top;
+        }
+
+        .fig {
+            position: absolute;
+            inset: 0;
+        }
+
+        .fig svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* светотень на белом мраморе + мягкая падающая тень */
+        .piece.w .fig svg {
+            filter: drop-shadow(0 3.75px 3px rgba(0, 0, 0, 0.45));
+        }
+
+        /* чёрный базальт с тёплым контровым светом факелов */
+        .piece.b .fig svg {
+            filter: drop-shadow(0 0 2px rgba(222, 192, 142, 0.3))
+                    drop-shadow(0 3.75px 3px rgba(0, 0, 0, 0.5));
+        }
+
+        /* тень-контакт под фигурой */
+        .fig::after {
+            content: '';
+            position: absolute;
+            left: -14%; right: -14%; bottom: -6%;
+            height: 12%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
+            z-index: -1;
+        }
+
+        /* --- анимации фигур --- */
+        .piece.born .fig { animation: rise 0.55s ease both; }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(26%) scale(0.82); filter: blur(3px); }
+            to   { opacity: 1; transform: none; filter: none; }
+        }
+
+        .piece.hop .fig { animation: hop 0.95s cubic-bezier(0.45, 0.15, 0.25, 1); }
+
+        @keyframes hop {
+            0%   { transform: none; }
+            40%  { transform: translateY(-34%) scale(1.12); }
+            75%  { transform: translateY(8%) scale(0.97); }
+            100% { transform: none; }
+        }
+
+        /* --- фирменные взятия: свой эффект у каждой фигуры --- */
+        .piece.burn .fig { animation: burnfig 1.75s ease-in forwards; }
+
+        @keyframes burnfig {
+            0%   { filter: none; }
+            35%  { filter: brightness(1.4) saturate(1.5) drop-shadow(0 0 8px rgba(255,140,40,0.9)); transform: scaleY(0.95); }
+            75%  { filter: brightness(0.5) sepia(0.9) saturate(1.6) drop-shadow(0 0 6px rgba(255,90,20,0.7)); transform: scaleY(0.88); }
+            100% { filter: brightness(0.28) sepia(1) saturate(1.2); transform: scaleY(0.8) translateY(6px); opacity: 0.25; }
+        }
+
+        .piece.dust .fig { animation: dustfig 1.3s ease-in forwards; }
+
+        @keyframes dustfig {
+            0%   { filter: none; }
+            30%  { filter: grayscale(0.85) brightness(1.15); opacity: 0.95; }
+            100% { filter: grayscale(1) brightness(0.85); transform: translateY(12px) scale(0.5); opacity: 0; }
+        }
+
+        .piece.dirge .fig { transform-origin: 50% 96%; animation: dirge 0.95s ease-in forwards; }
+
+        @keyframes dirge {
+            0%   { transform: none; }
+            22%  { transform: rotate(6deg) translateY(1px); }
+            100% { transform: rotate(62deg) translate(7px, 11px) scale(0.95); opacity: 0; }
+        }
+
+        .piece.cleave .fig { animation: cleave 0.7s ease-in forwards; }
+
+        @keyframes cleave {
+            0%   { filter: brightness(2.3) drop-shadow(0 0 10px rgba(255,255,255,0.9)); }
+            100% { filter: brightness(1.35); transform: scale(0.88) rotate(6deg); opacity: 0; }
+        }
+
+        .piece.knock .fig { transform-origin: 32% 92%; animation: knockfall 1.35s ease-in forwards; }
+
+        /* шах: король противника пульсирует тревожным красным */
+        .piece.check .fig svg {
+            animation: checkpulse 0.95s ease-in-out infinite;
+        }
+
+        @keyframes checkpulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 4px rgba(255, 70, 55, 0.85))
+                        drop-shadow(0 0 9px rgba(255, 40, 40, 0.5))
+                        drop-shadow(0 3.75px 3px rgba(0, 0, 0, 0.45));
+            }
+            50% {
+                filter: drop-shadow(0 0 7px rgba(255, 92, 60, 1))
+                        drop-shadow(0 0 17px rgba(255, 45, 35, 0.85))
+                        drop-shadow(0 3.75px 3px rgba(0, 0, 0, 0.45));
+            }
+        }
+
+        @keyframes knockfall {
+            0%   { transform: none; }
+            16%  { transform: rotate(-9deg) translateY(3px); }
+            58%  { transform: rotate(40deg) translate(16px, 30px); }
+            100% { transform: rotate(78deg) translate(52px, 110px); opacity: 0; }
+        }
+
+        /* огонь-испепеление (ферзь) */
+        .fireball {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50% 50% 45% 45%;
+            background:
+                radial-gradient(circle at 50% 74%, rgba(255,246,214,0.98) 0%, rgba(255,200,77,0.95) 26%, rgba(255,138,30,0.88) 46%, rgba(255,90,20,0.45) 63%, rgba(255,80,10,0) 78%),
+                radial-gradient(circle at 42% 44%, rgba(255,240,200,0.35), rgba(255,120,30,0) 65%);
+            filter: blur(0.5px);
+            animation: fireballs 2s ease-out forwards;
+        }
+
+        @keyframes fireballs {
+            0%   { transform: scale(0.22) translateY(26%); opacity: 0; }
+            12%  { opacity: 1; }
+            32%  { transform: scale(1.04) translateY(-2%); }
+            58%  { transform: scale(1.16) translateY(-9%) skewX(-2deg); }
+            80%  { transform: scale(1.08) translateY(-16%); opacity: 0.9; }
+            100% { transform: scale(0.55) translateY(-34%); opacity: 0; }
+        }
+
+        .ember {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            pointer-events: none;
+            background: radial-gradient(circle, #ffdf8f, #ff7a1e 75%);
+            box-shadow: 0 0 4px rgba(255,170,70,0.9);
+            animation: emberrise 1.15s ease-out forwards;
+        }
+
+        @keyframes emberrise {
+            0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx, 10px), -52px) scale(0.3); opacity: 0; }
+        }
+
+        /* пепел остаётся лежать на доске */
+        .ash {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 56% 44% 48% 52% / 60% 52% 48% 40%;
+            background: radial-gradient(circle at 36% 34%, rgba(96,86,78,0.95), rgba(56,50,46,0.92) 58%, rgba(30,26,23,0.4) 100%);
+            filter: blur(0.4px);
+            animation: ashset 0.6s ease-out both;
+        }
+
+        @keyframes ashset {
+            from { transform: scale(1.35); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        /* молния (ладья) */
+        .boltstr {
+            position: absolute;
+            pointer-events: none;
+            clip-path: polygon(56% 0, 38% 0, 47% 36%, 30% 40%, 60% 54%, 47% 87%, 72% 58%, 58% 56%, 76% 24%, 64% 22%);
+            background: linear-gradient(180deg, rgba(224,244,255,1) 0%, rgba(168,216,255,0.9) 38%, rgba(255,228,150,0.95) 72%, rgba(255,204,96,0.75) 100%);
+            filter: drop-shadow(0 0 7px rgba(180,224,255,0.95));
+            animation: boltflash 0.95s ease-in-out forwards;
+        }
+
+        @keyframes boltflash {
+            0% { opacity: 0; } 6% { opacity: 1; } 15% { opacity: 0.2; } 24% { opacity: 1; }
+            40% { opacity: 0.8; } 54% { opacity: 0.12; } 62% { opacity: 0.95; } 100% { opacity: 0; }
+        }
+
+        /* бросок оружия (копьё, стрела) */
+        .missile {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 2px;
+            animation: mpierce 0.5s ease-out forwards;
+        }
+
+        @keyframes mpierce { 0% { opacity: 0; } 22% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* меч коня */
+        .swordfx {
+            position: absolute;
+            pointer-events: none;
+            width: 3.5px;
+            transform-origin: 50% 90%;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 38%, rgba(196,222,255,0.9) 58%, rgba(255,255,255,0) 100%);
+            filter: drop-shadow(0 0 4px rgba(190,220,255,0.95));
+        }
+
+        /* разлет осколков */
+        .shard {
+            position: absolute;
+            pointer-events: none;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.35);
+        }
+        .shard.fly { transition: transform 0.7s cubic-bezier(0.24, 0.5, 0.3, 1), opacity 0.66s ease-out; }
+
+        /* удар короной (король) */
+        .crownring {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            border: 2.5px solid rgba(255,214,120,0.95);
+            box-shadow: 0 0 10px rgba(255,196,90,0.85), inset 0 0 6px rgba(255,196,90,0.55);
+            animation: ringout 0.75s ease-out forwards;
+        }
+
+        @keyframes ringout {
+            0% { transform: scale(0.3); opacity: 0; }
+            25% { opacity: 1; }
+            100% { transform: scale(1.95); opacity: 0; }
+        }
+
+        /* корона короля: снимается с головы, летит и бьёт */
+        .crownfly {
+            position: absolute;
+            pointer-events: none;
+            filter: drop-shadow(0 0 6px rgba(255,208,110,0.75)) drop-shadow(0 3px 3px rgba(0,0,0,0.4));
+        }
+
+        .crownfly svg { display: block; width: 100%; height: 100%; }
+
+        /* искра (снятие короны, удар) */
+        .glint {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff8dc, rgba(255,214,120,0.9) 45%, rgba(255,180,60,0) 78%);
+            filter: blur(0.4px);
+            animation: glintstar 0.62s ease-out both;
+        }
+
+        @keyframes glintstar {
+            0%   { transform: scale(0.2); opacity: 0; }
+            30%  { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.45) translateY(-9px); opacity: 0; }
+        }
+
+        /* пешка-легионер: замах и укол копьём (--dir: +1 бьёт вправо, -1 влево) */
+        .piece.thrust .fig { transform-origin: 50% 88%; animation: thrustf 0.72s ease-out both; }
+
+        @keyframes thrustf {
+            0%   { transform: rotate(calc(var(--dir, 1) * -5deg)); }
+            28%  { transform: rotate(calc(var(--dir, 1) * 7deg)) translateY(2.5%); }
+            70%  { transform: rotate(calc(var(--dir, 1) * -2deg)); }
+            100% { transform: none; }
+        }
+
+        /* всадник: вырастает и размахивается в такт удара (svg — поверх прыжка на .fig) */
+        .piece.slash .fig svg { transform-origin: 50% 88%; animation: slashf 0.62s ease-out both; }
+
+        @keyframes slashf {
+            0%   { transform: none; }
+            24%  { transform: scale(1.35) rotate(calc(var(--sdir, 1) * -6deg)); }
+            52%  { transform: scale(1.44) rotate(calc(var(--sdir, 1) * 9deg)) translateY(-2%); }
+            100% { transform: none; }
+        }
+
+        /* ладья: копит разряд перед молнией */
+        .piece.charge .fig { animation: chargeup 0.9s ease-out both; }
+
+        @keyframes chargeup {
+            0%   { filter: none; }
+            45%  { filter: brightness(1.4) drop-shadow(0 0 9px rgba(151,216,255,0.9)); }
+            70%  { filter: brightness(0.8); }
+            100% { filter: none; }
+        }
+
+        .chess-video.shake { animation: shake 0.45s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: none; }
+            25% { transform: translate(2px, -1px) rotate(0.4deg); }
+            55% { transform: translate(-3px, 2px) rotate(-0.35deg); }
+            80% { transform: translate(1px, -1px); }
+        }
+
+        .piece.off { display: none; }
+
+        /* дым от разбитой фигуры (лежит на клетке) */
+        .puff {
+            position: absolute;
+            width: 12.5%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(214, 200, 172, 0.6), rgba(150, 138, 112, 0) 70%);
+            animation: puff 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes puff {
+            from { transform: scale(0.35); opacity: 0.95; }
+            to   { transform: scale(2.4);  opacity: 0; }
+        }
+
+        /* --- фон-замок: каменный зал за ареной (экранный слой) --- */
+        .castle {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .wall {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(9, 6, 11, 0.6) 0%, rgba(9, 6, 11, 0.1) 30%, rgba(5, 3, 7, 0.55) 100%),
+                repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0 1.6px, rgba(0, 0, 0, 0) 1.6px 21px),
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.26) 0 1.2px, rgba(0, 0, 0, 0) 1.2px 31px),
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 0.9px, rgba(0, 0, 0, 0) 0.9px 15.5px),
+                radial-gradient(ellipse at 22% 30%, rgba(255, 150, 60, 0.16), rgba(255, 150, 60, 0) 45%),
+                radial-gradient(ellipse at 78% 30%, rgba(255, 150, 60, 0.16), rgba(255, 150, 60, 0) 45%),
+                linear-gradient(180deg, #382f38 0%, #29222e 48%, #1a1420 100%);
+        }
+
+        /* готические окна: лунный свет из-за спины зрителя */
+        .arch {
+            position: absolute;
+            top: 8%;
+            width: 14.5%;
+            aspect-ratio: 0.63;
+            clip-path: polygon(50% 0, 100% 30%, 100% 100%, 0 100%, 0 30%);
+            background: linear-gradient(180deg, #d9e7fb 0%, #9db8dd 26%, #4a586e 82%, #2c3548 100%);
+            box-shadow: inset 0 0 0 3px #15121a;
+        }
+        .arch.w1 { left: 6.5%; }
+        .arch.w2 { right: 6.5%; }
+
+        .mull {
+            position: absolute;
+            background: #14111a;
+            box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.14);
+        }
+        .mull.mv { left: calc(50% - 1.5px); top: 0; bottom: 0; width: 3px; }
+        .mull.mh { top: 40%; left: 0; right: 0; height: 3px; }
+
+        /* настенные бра с живым пламенем */
+        .sconce {
+            position: absolute;
+            top: 23%;
+            width: 30px;
+            height: 62px;
+        }
+        .sconce.sl { left: 19%; }
+        .sconce.sr { right: 19%; }
+        .sconce::before {                    /* пятно света на стене */
+            content: '';
+            position: absolute;
+            left: -38px; right: -38px;
+            top: -46px; bottom: -10px;
+            background: radial-gradient(ellipse, rgba(255, 160, 70, 0.22), rgba(255, 160, 70, 0) 70%);
+        }
+        .sconce::after {                     /* ковш-чаша */
+            content: '';
+            position: absolute;
+            left: 50%; top: 26px;
+            width: 16px; height: 7px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #6e5a42, #2e2318);
+            border-radius: 2px 2px 5px 5px;
+            box-shadow: inset 0 1px 0 rgba(255, 222, 170, 0.35);
+        }
+        .sconce .bracket {
+            position: absolute;
+            left: 50%;
+            top: 30px; bottom: 0;
+            width: 8px;
+            margin-left: -4px;
+            background: linear-gradient(180deg, #57432f, #241a12);
+            border-radius: 0 0 3px 3px;
+        }
+
+        /* гербовые щиты с шахматным конём */
+        .shield {
+            position: absolute;
+            top: 30.5%;
+            width: 34px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 46% 46% 12% 12% / 26% 26% 58% 58%;
+            background: linear-gradient(160deg, #8d2437 0%, #5d1622 62%, #350b13 100%);
+            box-shadow:
+                inset 0 0 0 1.5px rgba(230, 195, 119, 0.55),
+                0 5px 9px rgba(0, 0, 0, 0.55);
+            color: #e6c377;
+            font-size: 15px;
+            text-shadow: 0 0 6px rgba(255, 200, 120, 0.4);
+        }
+        .shield.s1 { left: 8%; }
+        .shield.s2 { right: 8%; }
+
+        /* вымпелы под потолком зала */
+        .pen {
+            position: absolute;
+            top: 0;
+            width: 22px;
+            height: 44px;
+            transform-origin: 50% 0;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            background: linear-gradient(180deg, #8d2437, #4c1019);
+            box-shadow: inset 0 2px 0 rgba(232, 206, 150, 0.3);
+            opacity: 0.92;
+            animation: sway 3.2s ease-in-out infinite alternate;
+        }
+        .pen.p1 { left: 6%; }
+        .pen.p2 { left: 14%; top: 3px; animation-delay: -0.5s; }
+        .pen.p3 { left: 22%; top: 6px; animation-delay: -1.1s; }
+        .pen.p4 { right: 22%; top: 6px; animation-delay: -1.6s; }
+        .pen.p5 { right: 14%; top: 3px; animation-delay: -2.1s; }
+        .pen.p6 { right: 6%; }
+
+        @keyframes sway {
+            from { transform: rotateZ(-3deg) skewY(1.5deg); }
+            to   { transform: rotateZ(3deg) skewY(-1.5deg); }
+        }
+
+        /* пылинки в лучах света */
+        .mote {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(255, 224, 178, 0.55);
+            filter: blur(0.5px);
+            animation: moteb 7s ease-in-out infinite;
+        }
+
+        @keyframes moteb {
+            0%   { transform: translate(0, 0); opacity: 0; }
+            30%  { opacity: 0.85; }
+            70%  { opacity: 0.4; }
+            100% { transform: translate(10px, -34px); opacity: 0; }
+        }
+
+        /* --- экранная графика (не в плоскости) --- */
+        .vign {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 42%, transparent 40%, rgba(7, 4, 9, 0.7) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .capbar {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            padding: 5px 8px;
+            background: rgba(5, 3, 8, 0.82);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            font-size: 11.5px;
+            letter-spacing: 0.5px;
+            color: rgba(233, 226, 210, 0.85);
+            z-index: 6;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .capbar.hot { color: #ff8296; font-weight: 600; }
+
+        /* --- кнопка «Повторить партию» (верхний левый угол кадра) --- */
+        .replay-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 9;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(232, 194, 106, 0.6);
+            background: linear-gradient(180deg, rgba(40, 32, 24, 0.94), rgba(19, 14, 11, 0.94));
+            color: #e8c26a;
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+            transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s,
+                        box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .replay-btn svg {
+            width: 13px;
+            height: 13px;
+            fill: #e8c26a;
+            transition: fill 0.3s ease;
+        }
+
+        .replay-btn.show {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+        }
+
+        .replay-btn:hover {
+            color: #ffe08f;
+            border-color: rgba(255, 222, 140, 0.95);
+            box-shadow: 0 4px 20px rgba(232, 194, 106, 0.35), 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .replay-btn:hover svg { fill: #ffe08f; }
+
+        .replay-btn:active { transform: translateY(1px) scale(0.97); }
+
+        .instant,
+        .instant * {
+            transition: none !important;
+            animation: none !important;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin-bottom: 22px;
+        }
+
+        .footer {
+            font-size: 13px;
+            color: rgba(234, 234, 234, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- градиенты для объёмных фигур: белый мрамор и чёрный базальт -->
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute;">
+        <defs>
+            <linearGradient id="gW" gradientUnits="userSpaceOnUse" x1="17" y1="6" x2="50" y2="96">
+                <stop offset="0" stop-color="#ffffff"/>
+                <stop offset="0.22" stop-color="#f6efe1"/>
+                <stop offset="0.4" stop-color="#dfd3bd"/>
+                <stop offset="0.55" stop-color="#f3ebdc"/>
+                <stop offset="0.75" stop-color="#cdc0a8"/>
+                <stop offset="0.9" stop-color="#efe7d8"/>
+                <stop offset="1" stop-color="#b3a68e"/>
+            </linearGradient>
+            <linearGradient id="gB" gradientUnits="userSpaceOnUse" x1="17" y1="6" x2="50" y2="96">
+                <stop offset="0" stop-color="#a49db2"/>
+                <stop offset="0.16" stop-color="#5c5568"/>
+                <stop offset="0.32" stop-color="#26222e"/>
+                <stop offset="0.5" stop-color="#0d0b12"/>
+                <stop offset="0.68" stop-color="#242030"/>
+                <stop offset="0.84" stop-color="#08060c"/>
+                <stop offset="1" stop-color="#040308"/>
+            </linearGradient>
+            <linearGradient id="gGold" gradientUnits="userSpaceOnUse" x1="16" y1="4" x2="50" y2="96">
+                <stop offset="0" stop-color="#8a5f1f"/>
+                <stop offset="0.18" stop-color="#e8c26a"/>
+                <stop offset="0.36" stop-color="#fff0b8"/>
+                <stop offset="0.52" stop-color="#c9962f"/>
+                <stop offset="0.68" stop-color="#f6dc8e"/>
+                <stop offset="0.85" stop-color="#a97a25"/>
+                <stop offset="1" stop-color="#6f4a16"/>
+            </linearGradient>
+            <linearGradient id="gSilver" gradientUnits="userSpaceOnUse" x1="16" y1="0" x2="48" y2="100">
+                <stop offset="0" stop-color="#f4f6fa"/>
+                <stop offset="0.5" stop-color="#aeb6c2"/>
+                <stop offset="1" stop-color="#dfe4ec"/>
+            </linearGradient>
+            <radialGradient id="gRuby" cx="0.35" cy="0.3" r="0.8">
+                <stop offset="0" stop-color="#ffb3bd"/>
+                <stop offset="0.4" stop-color="#e02440"/>
+                <stop offset="1" stop-color="#6f0a1a"/>
+            </radialGradient>
+            <radialGradient id="gFire" cx="0.5" cy="0.68" r="0.6">
+                <stop offset="0" stop-color="#fff6d8"/>
+                <stop offset="0.32" stop-color="#ffc84d"/>
+                <stop offset="0.62" stop-color="#ff8a1e"/>
+                <stop offset="0.85" stop-color="rgba(255,110,30,0.55)"/>
+                <stop offset="1" stop-color="rgba(255,110,30,0)"/>
+            </radialGradient>
+            <pattern id="gDia" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="6" height="6" fill="url(#gSilver)"/>
+                <rect x="0.7" y="0.7" width="2.1" height="2.1" fill="#ffffff" opacity="0.9"/>
+                <rect x="3.5" y="3.5" width="2.1" height="2.1" fill="#ffffff" opacity="0.6"/>
+            </pattern>
+            <linearGradient id="gHi" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="100">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+                <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.22"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+    </svg>
+    <div class="card">
+        <div class="avatar">Р</div>
+        <h1>Ростислав</h1>
+        <div class="role">Шахматист • Трейдер</div>
+
+        <div class="interests">
+            <div class="interest interest--column reveal">
+                <div class="interest-head">
+                    <div class="interest-icon">♟️</div>
+                    <div>
+                        <div class="interest-title">Шахматы</div>
+                        <div class="interest-text">Разбираюсь в стратегии и тактике игры</div>
+                    </div>
+                </div>
+
+                <div class="chess-video" id="wizardChess" aria-label="Ожившие шахматы в замковом зале">
+                    <!-- фон-замок: кладка, окна, бра, щиты, вымпелы -->
+                    <div class="castle" aria-hidden="true">
+                        <div class="wall"></div>
+                        <div class="arch w1"><i class="mull mv"></i><i class="mull mh"></i></div>
+                        <div class="arch w2"><i class="mull mv"></i><i class="mull mh"></i></div>
+                        <div class="sconce sl"><i class="bracket"></i><i class="flame"></i></div>
+                        <div class="sconce sr"><i class="bracket"></i><i class="flame"></i></div>
+                        <div class="shield s1">♞</div>
+                        <div class="shield s2">♞</div>
+                        <div class="pen p1"></div><div class="pen p2"></div><div class="pen p3"></div>
+                        <div class="pen p4"></div><div class="pen p5"></div><div class="pen p6"></div>
+                        <div class="mote" style="left:31%; top:37%;"></div>
+                        <div class="mote" style="left:70%; top:31%; animation-delay:-2.4s;"></div>
+                        <div class="mote" style="left:14%; top:22%; animation-delay:-4.6s;"></div>
+                        <div class="mote" style="left:86%; top:40%; animation-delay:-6s;"></div>
+                    </div>
+                    <div class="scene" id="scene">
+                        <div class="floor"></div>
+                        <div class="glow" style="left: 1%; top: 16%;"></div>
+                        <div class="glow" style="left: 65%; top: 16%; animation-delay: 1.1s;"></div>
+                        <div class="slab slabA"></div>
+                        <div class="slab slabB"></div>
+                        <div class="stand torch tl"><i class="flame"></i></div>
+                        <div class="stand torch tr"><i class="flame"></i></div>
+                        <div class="stand banner bl"><span class="flag">♞</span></div>
+                        <div class="stand banner br"><span class="flag">♞</span></div>
+                        <div class="board-layer" id="boardLayer">
+                            <div class="board-inner">
+                                <div class="grid" id="grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pieces" id="piecesLayer"></div>
+                    <div class="vign"></div>
+                    <div class="capbar" id="capbar">Ожившая партия…</div>
+                    <button class="replay-btn" id="replayBtn" type="button" aria-label="Повторить партию" title="Повторить партию">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                        <span>Повторить партию</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="interest interest--column reveal">
+                <div class="interest-head">
+                    <div class="interest-icon">📈</div>
+                    <div>
+                        <div class="interest-title">Трейдинг</div>
+                        <div class="interest-text">Увлекаюсь анализом рынков</div>
+                    </div>
+                </div>
+
+                <div class="trading-row">
+                    <div class="exchanges">
+                        <a class="ex-logo binance" href="https://www.binance.com" target="_blank" rel="noopener" title="Binance">
+                            <!-- официальный лого-локап Binance (знак + BINANCE), вектор с Wikimedia Commons -->
+                            <svg class="binance-lockup" viewBox="0 0 632.014 126.611" aria-hidden="true"><g fill="#F3BA2F">
+                                <polygon points="38.171,53.203 62.759,28.616 87.36,53.216 101.667,38.909 62.759,0 23.864,38.896"/>
+                                <rect x="3.644" y="53.188" transform="matrix(0.7071 0.7071 -0.7071 0.7071 48.7933 8.8106)" width="20.233" height="20.234"/>
+                                <polygon points="38.171,73.408 62.759,97.995 87.359,73.396 101.674,87.695 101.667,87.703 62.759,126.611 23.863,87.716 23.843,87.696"/>
+                                <rect x="101.64" y="53.189" transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 235.5457 29.0503)" width="20.234" height="20.233"/>
+                                <polygon points="77.271,63.298 77.277,63.298 62.759,48.78 52.03,59.509 52.029,59.509 50.797,60.742 48.254,63.285 48.234,63.305 48.254,63.326 62.759,77.831 77.277,63.313 77.284,63.305"/>
+                                <path d="M148.37,30.679h31.117c7.723,0,13.563,1.982,17.521,5.946c3.063,3.07,4.594,6.875,4.594,11.414v0.192c0,1.918-0.237,3.613-0.714,5.083c-0.476,1.472-1.112,2.797-1.907,3.98c-0.793,1.184-1.715,2.223-2.763,3.117c-1.049,0.896-2.176,1.664-3.383,2.302c3.882,1.472,6.938,3.469,9.166,5.995c2.227,2.527,3.342,6.028,3.342,10.503v0.191c0,3.07-0.59,5.755-1.771,8.058c-1.181,2.301-2.873,4.22-5.076,5.755c-2.203,1.535-4.852,2.685-7.948,3.453c-3.096,0.767-6.527,1.15-10.292,1.15H148.37V30.679z M176.376,57.822c3.262,0,5.852-0.558,7.769-1.678c1.918-1.119,2.877-2.926,2.877-5.419v-0.192c0-2.237-0.832-3.947-2.494-5.131c-1.663-1.183-4.061-1.775-7.193-1.775h-14.579v14.195H176.376z M180.309,84.871c3.261,0,5.817-0.59,7.673-1.774c1.854-1.183,2.782-3.022,2.782-5.516V77.39c0-2.238-0.864-4.012-2.59-5.324c-1.727-1.309-4.508-1.965-8.345-1.965h-17.073v14.771H180.309z"/>
+                                <path d="M223.875,30.679h14.772v67.141h-14.772V30.679z"/>
+                                <path d="M261.02,30.679h13.618l31.461,41.34v-41.34h14.579v67.141h-12.564l-32.516-42.682v42.682H261.02V30.679z"/>
+                                <path d="M365.398,30.2h13.619l28.776,67.62H392.35l-6.139-15.058h-28.391l-6.138,15.058h-15.061L365.398,30.2z M380.936,69.716l-8.921-21.772l-8.918,21.772H380.936z"/>
+                                <path d="M423.738,30.679h13.621l31.459,41.34v-41.34h14.579v67.141h-12.564l-32.516-42.682v42.682h-14.579V30.679z"/>
+                                <path d="M536.557,98.97c-4.926,0-9.496-0.896-13.717-2.685s-7.865-4.236-10.934-7.338c-3.07-3.101-5.469-6.762-7.193-10.982c-1.727-4.221-2.59-8.729-2.59-13.525v-0.191c0-4.796,0.863-9.287,2.59-13.476c1.725-4.188,4.123-7.865,7.193-11.03c3.068-3.165,6.746-5.66,11.029-7.482s9.018-2.733,14.197-2.733c3.131,0,5.992,0.257,8.582,0.767c2.59,0.513,4.939,1.215,7.051,2.11c2.111,0.896,4.059,1.983,5.852,3.261c1.787,1.28,3.451,2.686,4.986,4.221l-9.398,10.838c-2.625-2.365-5.293-4.221-8.01-5.563c-2.719-1.342-5.771-2.014-9.16-2.014c-2.814,0-5.42,0.544-7.816,1.631c-2.398,1.087-4.461,2.589-6.188,4.507c-1.725,1.918-3.068,4.141-4.029,6.666c-0.957,2.527-1.436,5.228-1.436,8.105v0.191c0,2.877,0.479,5.596,1.436,8.152c0.961,2.559,2.285,4.796,3.982,6.714c1.693,1.918,3.74,3.438,6.137,4.557c2.4,1.12,5.037,1.678,7.914,1.678c3.838,0,7.08-0.703,9.734-2.11c2.654-1.405,5.293-3.324,7.914-5.755l9.4,9.496c-1.727,1.855-3.52,3.518-5.371,4.987c-1.855,1.472-3.885,2.734-6.092,3.79c-2.205,1.054-4.621,1.855-7.24,2.397C542.756,98.697,539.816,98.97,536.557,98.97z"/>
+                                <path d="M581.467,30.679h50.547v13.141h-35.967v13.62h31.652v13.14h-31.652v14.1h36.449v13.14h-51.029V30.679z"/>
+                            </g></svg>
+                        </a>
+                        <a class="ex-logo bybit" href="https://www.bybit.com" target="_blank" rel="noopener" title="Bybit">
+                            <!-- официальный лого-локап Bybit (вектор с Wikimedia Commons), фирменный оранжевый -->
+                            <svg class="bybit-lockup" viewBox="0 0 13547 4513" aria-hidden="true"><g fill="#F7A600">
+                                <polygon points="9655,3480 9655,-1 10355,-1 10355,3480"/>
+                                <path d="M1500 4514l-1500 0 0 -3481 1440 0c700,0 1107,381 1107,978 0,386 -262,636 -443,719 216,98 493,318 493,782 0,650 -458,1002 -1097,1002zm-116 -2875l0 0 -685 0 0 802 685 0c297,0 463,-161 463,-401 0,-239 -166,-401 -463,-401zm45 1413l0 0 -730 0 0 856 730 0c317,0 468,-195 468,-430 0,-235 -151,-425 -468,-425z"/>
+                                <polygon points="4732,3086 4732,4514 4037,4514 4037,3086 2960,1033 3720,1033 4389,2436 5049,1033 5809,1033"/>
+                                <path d="M7793 4514l-1500 0 0 -3481 1440 0c700,0 1107,381 1107,978 0,386 -262,636 -443,719 216,98 493,318 493,782 0,650 -458,1002 -1097,1002zm-116 -2875l0 0 -685 0 0 802 685 0c297,0 463,-161 463,-401 0,-239 -166,-401 -463,-401zm45 1413l0 0 -730 0 0 856 730 0c317,0 468,-195 468,-430 0,-235 -151,-425 -468,-425z"/>
+                                <polygon points="12610,1639 12610,4514 11911,4514 11911,1639 10974,1639 10974,1033 13547,1033 13547,1639"/>
+                            </g></svg>
+                        </a>
+                        <a class="ex-logo bingx" href="https://www.bingx.com" target="_blank" rel="noopener" title="BingX">
+                            <!-- официальный лого-локап BingX (вектор с worldvectorlogo), фирменный синий -->
+                            <svg class="bingx-lockup" viewBox="24.965 390.719 1028.41 308.709" aria-hidden="true"><g fill="#2A54FE">
+                                <path d="m244.181 525.646c27.065 36.181 63.637 55.412 108.119 60.182 16.266 1.742 16.304 1.381 16.308 17.533 0 16.335-.442 32.685.181 48.992.319 8.35-2.935 10.09-10.416 9.586-58.972-3.996-110.472-24.991-153.175-66.451-2.4-2.328-4.199-6.187-8.71-5.177-2.955-1.395-4.513-4.217-6.655-6.455-3.05-4.331-6.32-8.489-9.701-12.57-9.893-14.003-19.818-27.989-27.292-43.507-24.096-34.346-58.271-52.074-98.565-59.533-8.146-1.506-19.34.675-23.917-3.975-5.393-5.479-1.516-16.685-1.714-25.395-.274-11.979.579-24.018-.274-35.941-.682-9.523 2.326-12.216 11.799-11.595 58.005 3.786 108.298 25.069 150.647 64.979 2.592 2.444 5.326 4.741 7.994 7.104 4.794 1.589 7.954 5.156 10.934 8.963 2.206 3.625 5.079 6.746 7.671 10.088 9.707 13.909 19.865 27.531 26.766 43.172z" fill="#2a54fe"/>
+                                <path d="m248.679 424.749c34.015-21.886 71.656-31.562 111.688-33.413 5.977-.274 8.496 1.339 8.373 7.887-.376 19.917-.234 39.845-.066 59.77.042 4.911-1.358 7.035-6.693 7.209-20.889.674-40.74 6.231-60.128 13.675-5.91-5.003-8.925-12.14-13.329-18.252-8.31-11.523-19.049-20.27-30.776-27.974-3.613-2.375-7.956-3.99-9.069-8.902zm-101.918 204.355c-33.676 21.773-71.338 30.074-110.669 32.845-5.657.396-7.693-1.565-7.617-7.355.269-19.915.299-39.839-.017-59.752-.097-6.074 1.585-8.345 7.974-8.395 20.59-.169 40.002-5.957 58.919-13.648 6.053 2.653 7.491 9.005 10.854 13.765 8.753 12.385 17.909 24.256 31.187 32.301 4 2.424 8.188 5.057 9.369 10.239z" fill="#2a54fe"/>
+                                <path d="m146.761 629.104c-22.507-13.862-40.517-31.835-51.41-56.306l9.738-4.604c8.657 10.62 15.029 22.934 25.227 32.473 8.681 8.115 19.427 13.264 28.232 21.088-3.153 3.69-7.271 5.837-11.787 7.349zm101.918-204.355c19.459 11.171 37.021 24.364 48.36 44.418 1.956 3.459 4.411 6.594 4.813 10.71-3.207 1.621-6.413 3.24-9.618 4.858-11.55-19.354-26.03-35.843-45.754-47.338-2.9-1.684-6.58-3.546-4.819-8.247 1.77-2.375 4.065-3.91 7.018-4.401z" fill="#2952f7"/>
+                                <path d="m220.656 444.257c1.534-2.522 3.774-4.128 6.55-5.036 3.607-2.154 7.378-2.651 11.305-.994 20.335 8.563 36.186 22.102 46.21 41.991 1.392 2.766 2.807 5.798.339 8.836-2.398 1.569-4.798 3.143-7.193 4.71-4.428-2.47-5.947-7.283-8.848-10.982-10.117-12.917-21.331-24.431-36.932-30.893-4.183-1.734-9.49-2.325-11.431-7.632z" fill="#274eeb"/>
+                                <path d="m285.059 489.054c-10.809-26.452-28.771-44.598-57.854-49.833 4.275-4.135 8.534-8.295 14.455-10.07 12.68 10.6 27.214 19.009 37.78 32.108 5.698 7.064 12.563 13.453 12.793 23.477z" fill="#2850f1"/>
+                                <path d="m208.273 473.021c-3.954-2.413-7.165-5.556-9.462-9.598 2.254-1.9 4.509-3.802 6.763-5.699 24.642 2.37 42.892 14.77 55.655 35.641 2.05 3.35 4.134 6.869 2.47 11.127-1.62 3.177-4.323 5.191-7.358 6.845-3.478-.88-4.849-3.832-6.327-6.596-9.065-16.971-22.439-28.237-41.741-31.72z" fill="#2448d9"/>
+                                <path d="m175.052 609.651c-1.483 2.603-3.693 4.248-6.579 5.004-2.646.827-5.179 1.812-8.135 1.187-20.389-4.313-44.3-30.148-47.88-51.877 1.793-2.512 4.334-3.893 7.194-4.798 4.01.719 5.945 3.834 7.74 6.946 9.673 16.778 23.01 29.484 40.868 37.293 2.921 1.277 5.846 2.738 6.792 6.245z" fill="#274eeb"/>
+                                <path d="m112.459 563.965c3.163 5.519 6.4 10.996 9.476 16.563 10.25 18.574 26.385 29.084 46.539 34.127-2.656 3.28-5.846 5.812-9.925 7.101-25.631-10.063-43.599-27.766-53.458-53.561 2.456-1.413 4.912-2.822 7.368-4.23z" fill="#2850f1"/>
+                                <path d="m191.655 583.092c3.108 1.405 4.7 3.824 4.83 7.224-1.806 1.577-3.613 3.158-5.421 4.739-19.749 1.299-33.893-9.171-45.503-23.18-5.64-6.804-13.826-13.354-11.401-24.33 2.082-1.834 4.167-3.67 6.251-5.508 6.154-1.15 7.093 4.235 8.756 7.718 8.694 18.222 23.718 28.102 42.488 33.337z" fill="#2448da"/>
+                                <path d="m220.656 444.257c25.617 8.933 46.255 23.627 57.21 49.507-2.422 1.756-4.843 3.517-7.261 5.272-3.934-.981-5.369-4.435-7.176-7.427-11.146-18.479-26.569-31.059-48.179-35.211-1.963-.377-3.784-1.103-4.996-2.848 2.674-3.986 6.094-7.132 10.402-9.293z" fill="#264ce6"/>
+                                <path d="m210.254 453.551c30.225 1.749 47.887 20.169 60.351 45.485-2.303 1.816-4.604 3.638-6.906 5.455-10.166-23.211-27.513-37.815-52.26-43.451-2.386-.545-4.644-.898-5.864-3.316.889-2.143 2.393-3.598 4.679-4.173z" fill="#254ae0"/>
+                                <path d="m134.16 547.545c10.31 26.206 29.661 41.585 56.905 47.51-1.147 3.581-4.131 5.359-7.067 7.181-7.279 3.503-12.986-1.198-18.909-3.894-14.947-6.794-26.653-17.25-34.265-31.967-2.363-4.565-5.244-9.19-1.61-14.474 1.649-1.449 3.296-2.902 4.946-4.356z" fill="#264ae0"/>
+                                <path d="m129.213 551.901c4.9 25.12 23.103 37.79 44.518 47.346 3.226 1.436 6.835 2.011 10.266 2.988-2.294 3.303-5.366 5.664-8.945 7.416-25.565-9.035-43.007-26.988-55.399-50.484z" fill="#264ce5"/>
+                                <path d="m191.655 583.092c-12.743 3.219-20.673-5.948-29.812-11.762-10.889-6.927-13.08-20.4-21.433-29.293 2.998-4.297 6.015-8.582 10.411-11.634 4.963 10.988 6.639 23.658 17.468 31.597 4.472 3.281 8.441 7.184 13.792 9.095 5.039 2.525 7.216 7.332 9.574 11.997z" fill="#2446d4"/>
+                                <path d="m208.273 473.021c11.431-4.447 19.111 3.187 26.93 8.979 10.03 7.426 16.428 17.873 21.138 29.337-1.771 3.074-3.813 5.888-7.061 7.585-4.355-2.655-5.705-7.415-7.691-11.573-5.58-11.668-16.333-17.707-26.144-24.812-3.714-2.177-6.852-4.784-7.172-9.516z" fill="#2346d4"/>
+                                <path d="m182.081 571.095c-2.952 4.043-6.11 1.108-8.152-.519-12.923-10.304-24.583-21.517-23.107-40.173.672-.874 1.346-1.746 2.019-2.625 12.473 12.596 19.76 28.697 29.24 43.317z" fill="#2244cf"/>
+                                <path d="m215.445 482.536c19.653 4.339 28.199 19.01 33.835 36.385l-5.099 6.725c-11.799-12.889-19.518-28.503-28.736-43.11z" fill="#2244ce"/>
+                                <path fill-rule="evenodd" d="m427.698 524.451c0-26.743.227-53.493-.15-80.229-.104-7.224 1.79-9.635 9.34-9.458 21.939.517 43.906-.061 65.855.234 43.819.589 67.731 42.051 45.75 79.801-3.101 5.323-1.7 7.151 1.817 10.532 16.748 16.093 21.086 35.701 12.565 56.867-8.577 21.3-25.841 31.808-48.773 32.078-25.943.299-51.895-.154-77.835.225-6.77.1-8.815-1.773-8.722-8.622.37-27.142.153-54.286.153-81.428zm429.421-38.367c9.986 0 19.973.044 29.958-.024 3.81-.024 8.099.059 6.75 5.339-2.272 8.887 6.577 20.212-6.115 26.979-2.519 1.341.565 4.213 1.354 6.262 8.3 21.566 6.78 42.15-5.996 61.659-1.829 2.792-4.057 4.541-.953 8.986 22.828 32.682 8.8 74.63-29.389 89.29-38.687 14.853-82.707-11.748-86.326-51.74-.648-7.188 1.174-9.287 7.988-8.59a64.79 64.79 0 0 0 13.165.008c9.397-.97 14.792.714 18.612 11.65 6.396 18.313 33.337 21.016 45.725 6.082 8.471-10.215 5.577-20.978-6.767-25.456-5.364-1.948-10.886-2.074-16.5-2.235-34.745-1.002-61.553-27.871-62.787-62.745-1.165-32.954 23.917-61.481 57.779-64.773 11.068-1.072 22.326-.167 33.499-.167.001-.174.001-.353.003-.525zm195.401 128.259c-12.473 0-24.729-.211-36.974.098-5.242.131-6.602-3.635-8.647-6.904-9.074-14.512-18.09-29.06-28.345-45.552-9.512 15.288-18.774 29.297-27.046 43.872-3.89 6.853-8.465 9.189-16.141 8.664-10.199-.699-20.482-.172-32.478-.172 16.736-26.894 32.375-52.611 48.714-77.881 4.277-6.618 4.514-11.104.097-17.887-16.288-25.021-31.745-50.576-48.799-77.999 14.403 0 27.263-.08 40.125.044 4.436.044 5.445 4.221 7.273 7.095 9.365 14.736 18.58 29.564 28.284 45.059 9.686-15.534 19.043-29.829 27.583-44.596 3.497-6.041 7.567-8.157 14.354-7.794 10.271.547 20.593.144 30.685.144 2.17 4.464-1.127 6.588-2.617 9.005-14.205 23.054-28.29 46.195-43.108 68.851-4.329 6.619-4.554 11.231-.192 17.9 14.38 22 28.078 44.442 41.898 66.802 2.007 3.248 5.154 6.044 5.334 11.251zm-415.048-63.694c0-17.959.68-35.959-.272-53.87-.514-9.644 2.998-12.188 11.405-10.666 9.297 1.684 19.723-4.311 28.166 4.287.826.842 4.367-.926 6.624-1.567 35.289-9.996 69.918 7.801 68.11 52.033-.861 21.122-.395 42.31-.012 63.46.132 7.229-1.005 10.345-9.546 10.279-27.762-.221-27.766.21-27.766-27.607 0-15.564.095-31.134-.027-46.7-.11-13.879-7.338-22.513-18.928-22.985-11.975-.489-20.245 8.232-20.484 22.774-.353 21.551-.292 43.111.024 64.66.094 6.575-.562 9.813-8.754 9.85-28.543.135-28.541.531-28.541-28.021z M583.51 549.635c0-18.321.277-36.649-.146-54.964-.155-6.859 2.108-8.627 8.821-8.771 28.514-.611 28.508-.844 28.508 28.102 0 30.272-.289 60.547.2 90.812.128 7.883-2.097 9.793-9.816 9.74-27.565-.194-27.567.118-27.567-27.873z M620.709 454.079c0 18.467 0 18.467-22.414 18.463-14.821-.002-14.821-.002-14.814-22.737.006-14.891.006-14.891 23.869-14.879 13.359.006 13.359.006 13.359 19.153z M490.89 583.183c-26.02 0-26.02 0-26.02-25.479 0-17.67 0-17.68 18.27-17.666 8.778.004 17.576-.356 26.326.166 12.978.774 22.15 10.681 21.545 22.484-.605 11.811-9.451 20.065-22.166 20.463-5.978.186-11.97.032-17.955.032z M464.869 487.328c0-21.21 0-21.214 20.839-21.206 5.177.002 10.392-.368 15.517.137 12.183 1.202 20.479 10.816 19.947 22.574-.514 11.312-8.849 19.549-20.844 20.332-4.363.283-8.754.097-13.133.099-22.326.004-22.326 0-22.326-21.936zm364.741 89.787c-14.073-.178-26.691-12.956-26.659-26.999.03-14.486 13.443-27.353 27.97-26.838 14.251.503 26.19 13.222 25.871 27.553-.32 14.315-12.884 26.463-27.182 26.284z"/>
+                            </g></svg>
+                        </a>
+                    </div>
+
+                    <div class="btc-video" id="btcVideo" title="Пауза / воспроизвести" aria-label="Динамика цены Биткоина за последние 10 лет — видео-график">
+                        <div class="vv-head">
+                            <span class="vv-badge">BTC/USD · 10Y</span>
+                            <div class="vv-right">
+                                <span class="vv-replay" title="Посмотреть снова">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                                </span>
+                                <span class="vv-price" id="btcPrice">$430</span>
+                            </div>
+                        </div>
+                        <div class="vv-stage">
+                            <svg id="btcChart" viewBox="0 0 212 105" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="btcArea" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0" stop-color="#f7931a" stop-opacity="0.32"/>
+                                        <stop offset="1" stop-color="#f7931a" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <clipPath id="btcReveal"><rect id="btcClip" x="0" y="0" width="0" height="105"/></clipPath>
+                                </defs>
+                                <g id="btcGrid"></g>
+                                <g clip-path="url(#btcReveal)">
+                                    <path id="btcAreaPath" fill="url(#btcArea)"></path>
+                                    <path id="btcGlowPath" fill="none" stroke="#f7931a" stroke-width="4.5" opacity="0.22"></path>
+                                    <path id="btcLinePath" fill="none" stroke="#f7931a" stroke-width="1.7" stroke-linejoin="round"></path>
+                                    <circle id="btcHeadGlow" r="6" fill="#f7931a" opacity="0.3"></circle>
+                                    <circle id="btcHead" r="2.7" fill="#ffe0b0" stroke="#f7931a" stroke-width="1.2"></circle>
+                                </g>
+                            </svg>
+                            <div class="vv-center">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+                            </div>
+                            <div class="vv-progress"><i id="btcFill"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interest interest--column study-block reveal">
+                <div class="interest-head">
+                    <div class="interest-icon">📚</div>
+                    <div>
+                        <div class="interest-title">Учёба</div>
+                        <div class="interest-text">Стопка учебников — и никаких выходных</div>
+                    </div>
+                </div>
+
+                <div class="study-row">
+                    <div class="book-stack" aria-hidden="true">
+                        <div class="book bk1">Алгебра</div>
+                        <div class="book bk2">Матанализ</div>
+                        <div class="book bk3">История</div>
+                        <div class="book bk4">Английский</div>
+                    </div>
+
+                    <div class="sched-wrap">
+                        <div class="sched" aria-label="Расписание дня">
+                            <div class="sched-row"><span class="sched-time">7:00</span><span class="sched-what">подъём</span></div>
+                            <div class="sched-row sched-row--study"><span class="sched-time">8:30–22:30</span><span class="sched-what">учёба</span></div>
+                            <div class="sched-row"><span class="sched-time">23:00</span><span class="sched-what">сон</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="footer">Strategy in the game. Strategy in the market.</div>
+    </div>
+
+    <script>
+        (function () {
+            const video = document.getElementById('wizardChess');
+            const grid = document.getElementById('grid');
+            const layer = document.getElementById('piecesLayer');
+            const capbar = document.getElementById('capbar');
+
+            /* ---- доска ---- */
+            for (let r = 7; r >= 0; r--) {
+                for (let f = 0; f < 8; f++) {
+                    const sq = document.createElement('div');
+                    sq.className = ((f + r) % 2 === 0) ? 'sq-dark' : 'sq-light';
+                    grid.appendChild(sq);
+                }
+            }
+
+            /* ---- фигуры: объёмные SVG-скульптуры (вид сбоку) ---- */
+            const BACK = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+
+            /* ---- «императорский» стиль: лак, золото, рубины, стразы ---- */
+            const GOLD = 'url(#gGold)';
+            const CRYSTAL = 'url(#gDia)';
+            const gem = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r || 1.9}" fill="url(#gRuby)"/>`;
+
+            /* общий цоколь: золотая база + стразовый пояс + золотой обод */
+            const BASE_IMPERIAL = `
+                <ellipse cx="32" cy="93.5" rx="21.5" ry="6" fill="${GOLD}"/>
+                <ellipse cx="32" cy="87.8" rx="16.2" ry="4.6" fill="${CRYSTAL}"/>
+                <ellipse cx="32" cy="84.6" rx="14.8" ry="3.2" fill="${GOLD}"/>`;
+
+            const PIECE_SVG = {
+                P: F => `/* легионер: галея с гребнем, скутум, пилум */
+                    ${BASE_IMPERIAL}
+                    <rect x="42.4" y="28" width="1.5" height="47" rx="0.75" fill="rgba(196,142,84,0.85)"/>
+                    <path d="M43.15 19.5 L45.5 27.4 L40.8 27.4 Z" fill="url(#gSilver)"/>
+                    <path d="M26 84 C25.5 70 26.5 58 28 52.5 L36 52.5 C37.5 58 38.5 70 38 84 Z" fill="${F}"/>
+                    <path d="M27.4 58.6 L36.6 58.6 L36.3 61.4 L27.7 61.4 Z" fill="${GOLD}"/>
+                    ${gem(30.2, 60, 1.5)}${gem(33.8, 60, 1.5)}
+                    <path d="M36.4 55.2 C38.6 54.7 40.5 54.2 42.3 53.4 L41.8 51 C40.2 51.7 38.3 52.3 36.2 52.8 Z" fill="${F}"/>
+                    <circle cx="42" cy="52.6" r="1.9" fill="${GOLD}"/>
+                    <circle cx="32" cy="48.6" r="4.7" fill="${F}"/>
+                    <path d="M26.4 49.4 C26.3 44.5 28.7 41.5 32 41.5 C35.3 41.5 37.7 44.5 37.6 49.4 L36.9 51.6 L27.1 51.6 Z" fill="${GOLD}"/>
+                    ${gem(32, 46.4, 1.5)}
+                    <path d="M27.2 42.6 C28.1 35.8 35.9 35.8 36.8 42.6 L34.7 42.6 C34 39.2 30 39.2 29.3 42.6 Z" fill="url(#gRuby)"/>
+                    <path d="M32 58.5 C37.5 60 39.6 64.4 39.3 70.5 C39 77 36.4 82.4 32 84.7 C27.6 82.4 25 77 24.7 70.5 C24.4 64.4 26.5 60 32 58.5 Z" fill="url(#gRuby)" stroke="rgba(232,198,122,0.9)" stroke-width="1.3"/>
+                    <path d="M32 60.4 L32 82.8" stroke="${GOLD}" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M27 70.9 L37 70.9" stroke="${GOLD}" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+                    <circle cx="32" cy="71" r="2.5" fill="${GOLD}"/>
+                    ${gem(32, 71, 1.2)}`,
+                R: F => `/* грозовая башня: молнии между зубцами */
+                    ${BASE_IMPERIAL}
+                    <path d="M24 84 L26.5 56.5 L37.5 56.5 L40 84 Z" fill="${F}"/>
+                    ${gem(28, 78)}${gem(35, 72.5)}${gem(28.7, 67)}${gem(35, 61)}
+                    <ellipse cx="32" cy="55.2" rx="11.2" ry="3.2" fill="${GOLD}"/>
+                    <path d="M22 55 L22 30.5 L25.7 30.5 L25.7 35.2 L29.9 35.2 L29.9 30.5 L34.1 30.5 L34.1 35.2 L38.3 35.2 L38.3 30.5 L42 30.5 L42 55 Z" fill="${F}"/>
+                    <path d="M27.9 34.6 L26.6 28.9 L29.2 28 L27.6 21.9" stroke="rgba(151,216,255,0.55)" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M27.9 34.6 L26.6 28.9 L29.2 28 L27.6 21.9" stroke="#ffcf66" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M36.1 34.6 L37.4 28.9 L34.8 28 L36.4 21.9" stroke="rgba(151,216,255,0.55)" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M36.1 34.6 L37.4 28.9 L34.8 28 L36.4 21.9" stroke="#ffcf66" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    ${gem(27.4, 44)}${gem(36.4, 38)}${gem(31.8, 48.5)}
+                    <ellipse cx="27.4" cy="71.5" rx="2" ry="6.5" fill="url(#gHi)" opacity="0.4"/>`,
+                B: F => `/* боевой слон: корзина-надстройка, лучник */
+                    ${BASE_IMPERIAL}
+                    <path d="M24.8 70 L24.4 82.4 L28 82.4 L28.4 70 Z" fill="${F}"/>
+                    <path d="M40.6 70 L40.2 82.4 L43.8 82.4 L44.2 70 Z" fill="${F}"/>
+                    <path d="M14.6 84 C12.8 75 13.2 63 17 56 C20.5 50 26.6 46.4 32.8 46.3 C39.8 46.2 46.2 49.8 49.2 56.4 C51.8 62 52.5 71 51.2 79 C50.7 81.4 49.9 83 49.1 84 Z" fill="${F}"/>
+                    <ellipse cx="32.5" cy="81" rx="15.5" ry="2.8" fill="rgba(0,0,0,0.25)"/>
+                    <path d="M17.6 66.2 C15.1 62.2 14.9 56.9 17.1 52.8 C18.9 49.4 22.1 47.3 25.5 47.1 C29.5 46.9 32.8 48.9 34.2 52.4 C35.6 55.7 35.1 59.7 32.8 62.9 C30 66.3 25.7 68.2 21.8 67.2 C19.9 66.7 18.5 66.3 17.6 66.2 Z" fill="${F}"/>
+                    <path d="M26.3 48.5 C30.9 46.2 35.7 47.5 37.7 51.5 C39.5 55 38.4 59.6 34.9 61.5 C31.8 63.2 27.8 62.3 25.7 59.2 C23.9 56.2 23.7 51.6 26.3 48.5 Z" fill="${F}"/>
+                    <path d="M28 50.4 C30.9 49 33.8 50 35.2 52.5 C36.5 54.8 35.8 57.8 33.6 59.1 C31.5 60.2 29 59.4 27.6 57.2 C26.5 55.2 26.5 52.2 28 50.4 Z" fill="rgba(0,0,0,0.3)"/>
+                    <path d="M15.9 58.6 C11.4 61.1 9.4 65.1 10.8 69.6 C11.6 72.1 13.6 73.2 15.8 72.5 C14.4 69.1 14.9 65.1 18.2 62.3 Z" fill="${F}"/>
+                    <circle cx="11.5" cy="70.3" r="0.7" fill="rgba(0,0,0,0.35)"/>
+                    <path d="M11.3 63.4 C12.6 64.2 13.7 65.4 14.2 66.7" stroke="${GOLD}" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    <path d="M13.2 57.6 C11.9 58.6 11.2 60 11.3 61.4 L12.7 61.2 C12.6 59.9 13.1 58.7 14.2 58 Z" fill="${GOLD}"/>
+                    ${gem(17.4, 55.6, 1.15)}<circle cx="16.95" cy="55.15" r="0.35" fill="rgba(255,255,255,0.85)"/>
+                    <path d="M13.7 57.2 C16.4 54.2 20.1 52.6 24.2 53.3" stroke="${GOLD}" stroke-width="1.15" fill="none" stroke-linecap="round"/>
+                    ${gem(21.4, 51.9, 1.5)}
+                    ${gem(42.6, 62.6, 1.6)}${gem(38.4, 70.6, 1.6)}
+                    <ellipse cx="20.7" cy="83.2" rx="2.9" ry="1.3" fill="${GOLD}"/>
+                    <ellipse cx="44.5" cy="83.2" rx="2.9" ry="1.3" fill="${GOLD}"/>
+                    <path d="M18.6 72 L17.8 84 L23.6 84 L24 72 Z" fill="${F}"/>
+                    <path d="M41.8 70 L41.4 84 L47.6 84 L48 70 Z" fill="${F}"/>
+                    <rect x="25.9" y="36.6" width="1.7" height="9" rx="0.85" fill="${GOLD}"/>
+                    <rect x="37.4" y="36.6" width="1.7" height="9" rx="0.85" fill="${GOLD}"/>
+                    <path d="M25.2 46 L39.8 46 L38.6 54.8 L26.4 54.8 Z" fill="url(#gRuby)"/>
+                    <rect x="24.6" y="44.8" width="15.8" height="2.3" rx="1.15" fill="${GOLD}"/>
+                    <path d="M26.2 53.6 L38.8 53.6 L38.6 54.8 L26.4 54.8 Z" fill="${GOLD}"/>
+                    <path d="M30.6 47.4 L30.2 53.6" stroke="rgba(0,0,0,0.28)" stroke-width="1"/>
+                    <path d="M34.6 47.4 L34.9 53.6" stroke="rgba(0,0,0,0.28)" stroke-width="1"/>
+                    <path d="M29.7 45.9 L35.3 45.9 C35.4 43.9 34.5 42.9 32.5 42.9 C30.5 42.9 29.6 43.9 29.7 45.9 Z" fill="${F}"/>
+                    <circle cx="32.5" cy="41.7" r="2.7" fill="${F}"/>
+                    <path d="M29.9 41.5 C29.9 39.5 31 38.4 32.5 38.4 C34 38.4 35.1 39.5 35.1 41.5 C33.9 40.8 31.1 40.8 29.9 41.5 Z" fill="${GOLD}"/>
+                    <path d="M25.9 45.6 C24.4 42.3 25.6 38.9 29.3 37.2" stroke="${GOLD}" stroke-width="1.35" fill="none" stroke-linecap="round"/>
+                    <path d="M25.9 45.6 L29.6 37.4" stroke="rgba(255,244,214,0.7)" stroke-width="0.65"/>
+                    <path d="M28.3 38.9 L19.2 38.4" stroke="rgba(225,200,152,0.95)" stroke-width="1"/>
+                    <path d="M19.4 39.6 L15.9 38.4 L19.4 37.2 Z" fill="url(#gSilver)"/>
+                    <circle cx="27.4" cy="38.6" r="1.5" fill="${GOLD}"/>
+                    <path d="M23.4 36.2 C25.1 30.9 29.1 28.1 32.25 28.1 C35.4 28.1 39.4 30.9 41.1 36.2 Z" fill="${GOLD}"/>
+                    ${gem(27.2, 32.9, 1.4)}${gem(37.3, 32.9, 1.4)}${gem(26.2, 36.3, 1.1)}${gem(38.3, 36.3, 1.1)}
+                    <circle cx="32.25" cy="27.1" r="1.5" fill="${GOLD}"/>
+                    ${gem(32.25, 26.7, 1.1)}`,
+                N: F => `/* всадник: конь, рыцарь с копьём */
+                    ${BASE_IMPERIAL}
+                    <path d="M50.8 79 C54.4 71 55 62.5 53 56.5 C51.8 55.9 50.3 56.4 49.9 58.2 C51.4 63.5 51 71.5 48.4 78.6 Z" fill="${F}"/>
+                    <path d="M28.2 66 L27.8 83 L30.8 83 L31.1 66 Z" fill="${F}"/>
+                    <path d="M41.6 66 L41.2 83 L44.2 83 L44.6 66 Z" fill="${F}"/>
+                    <path d="M16.5 84 C15.5 76 17 68.5 21 62.5 C24.5 57.5 29.5 54.5 35 54 C42.5 53.4 48.6 56.8 50.2 62.5 C51.6 67.5 50.4 74.5 47.8 84 Z" fill="${F}"/>
+                    <path d="M22.4 68 L21.6 84 L25.2 84 L25.8 68 Z" fill="${F}"/>
+                    <path d="M45.4 66 L44.6 84 L48.2 84 L48.8 66 Z" fill="${F}"/>
+                    <path d="M22.6 62 C20.2 54.5 18.9 47.5 18.7 41.5 L28.9 40.9 C30 48 29.4 56 28.2 62.8 Z" fill="${F}"/>
+                    <path d="M18.7 41.5 C14.8 40.4 11.2 41.8 10.3 45 C9.7 47.2 10.9 49.4 13.5 49.9 C12.2 51.6 12.2 53.5 13.7 54.6 C15.9 56.3 19.2 55.6 20.7 53.2 C22.7 50.4 23.6 46.9 23.2 44.2 C22.3 42.3 20.7 41.3 18.7 41.5 Z" fill="${F}"/>
+                    <path d="M20.9 40.3 L22.3 34.9 L24.6 40.1 Z" fill="${F}"/>
+                    <circle cx="15.3" cy="46" r="1.05" fill="rgba(0,0,0,0.5)"/>
+                    <circle cx="11.5" cy="46.9" r="0.7" fill="rgba(0,0,0,0.4)"/>
+                    <path d="M23 44.8 C20.6 44 17.9 44.2 15.6 45.4" stroke="${GOLD}" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    <path d="M17.5 47.5 C16.2 48.6 15.5 50.2 15.4 52" stroke="${GOLD}" stroke-width="1" fill="none" stroke-linecap="round"/>
+                    <path d="M23.8 46.9 C23.1 51.5 23.6 56 26.3 59.4" stroke="${GOLD}" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                    <path d="M26.3 61.5 C24.9 56 25.8 51.2 28.6 48.9 C32.4 48.4 36.3 49 38.9 51.1 C41 54.5 41.4 58.5 40.2 62.3 C35.6 63.5 30.6 63.2 26.3 61.5 Z" fill="${GOLD}"/>
+                    ${gem(29.3, 55.6)}${gem(34.6, 54.9)}${gem(37.6, 58.9)}
+                    <path d="M29.4 50.3 C28.3 46.3 28.4 42.4 29.5 39.2 L35.1 39.3 C36.1 42.4 36.1 46.3 35 50.3 Z" fill="${F}"/>
+                    <ellipse cx="31.6" cy="45.2" rx="1.5" ry="2.3" fill="url(#gHi)" opacity="0.35"/>
+                    <rect x="29.3" y="46.6" width="5.8" height="1.8" rx="0.9" fill="${GOLD}"/>
+                    <path d="M30.8 43.4 C28.2 42.7 25.5 43 23.4 44.4 C22.4 45.4 22.6 47 23.9 47.5 C26.2 46.2 28.7 45.8 31 46.3 Z" fill="${F}"/>
+                    <path d="M25.1 50.8 L10.9 37.2 L12.7 35.4 L26.8 49 Z" fill="${GOLD}"/>
+                    <path d="M12.9 37.6 L8.2 32.4 L14.6 34.2 Z" fill="url(#gSilver)"/>
+                    <path d="M15.3 37.4 L23 34.6 L17 42 Z" fill="url(#gRuby)"/>
+                    <circle cx="23.3" cy="49" r="2" fill="${GOLD}"/>
+                    <path d="M28.9 39.5 C28.9 35.3 30.6 33.1 32.7 33.1 C34.8 33.1 36.5 35.3 36.5 39.5 Z" fill="${GOLD}"/>
+                    ${gem(32.7, 36.6, 1.3)}
+                    <path d="M30.9 32.9 C28.7 28.1 31.3 25.5 34 26.7 C32.9 28.6 33.3 31.2 34.3 32.7 Z" fill="url(#gRuby)"/>`,
+                Q: F => `/* королева с живым огнём в руке */
+                    ${BASE_IMPERIAL}
+                    <path d="M24.5 84 C26 72 26 61 27.5 53 C30 50.5 34 50.5 36.5 53 C38 61 38 72 39.5 84 Z" fill="${F}"/>
+                    <path d="M28.2 53.6 C27.2 49 27.4 44.6 28.6 41.6 L35.4 41.6 C36.6 44.6 36.8 49 35.8 53.6 Z" fill="${F}"/>
+                    <path d="M26.7 58.4 L37.3 58.4 L36.9 61.4 L27.1 61.4 Z" fill="${GOLD}"/>
+                    ${gem(30.1, 59.9, 1.4)}${gem(33.9, 59.9, 1.4)}
+                    <path d="M24.9 84 L25.5 80.4 L38.5 80.4 L39.1 84 Z" fill="${GOLD}"/>
+                    ${gem(32, 82.2, 1.3)}
+                    <path d="M28.6 52.6 C26.4 50.8 24.2 48.2 22.6 45.4 L20.3 46.8 C22.1 49.8 24.7 52.6 27.2 54.6 Z" fill="${F}"/>
+                    <circle cx="18" cy="40.8" r="8" fill="url(#gFire)" opacity="0.5"/>
+                    <circle cx="20.3" cy="45.9" r="2" fill="${GOLD}"/>
+                    <path d="M18 32.4 C15.4 34.9 14.5 37.5 15.3 39.8 C15.9 41.3 16.9 42.2 18 42.5 C19.1 42.2 20.1 41.3 20.7 39.8 C21.5 37.5 20.6 34.9 18 32.4 Z" fill="url(#gFire)"/>
+                    <path d="M18 36.3 C16.9 37.4 16.5 38.7 17 39.8 C17.3 40.6 17.7 41.1 18 41.3 C18.4 41.1 18.8 40.6 19 39.8 C19.5 38.7 19.1 37.4 18 36.3 Z" fill="#fff3c0"/>
+                    <circle cx="14.6" cy="34.3" r="0.95" fill="#ffca4d"/>
+                    <circle cx="21.2" cy="33.1" r="0.75" fill="#ffca4d"/>
+                    <ellipse cx="32" cy="52.8" rx="5.9" ry="1.9" fill="${GOLD}"/>
+                    <circle cx="32" cy="43.9" r="4.8" fill="${F}"/>
+                    <ellipse cx="30.3" cy="43.7" rx="1.6" ry="2.5" fill="url(#gHi)" opacity="0.45"/>
+                    <path d="M27.6 40.4 C29.2 38.8 34.8 38.8 36.4 40.4" stroke="${GOLD}" stroke-width="1.15" fill="none" stroke-linecap="round"/>
+                    <path d="M26.6 40.4 L27.6 29.8 L30.2 34.8 L32 25.8 L33.8 34.8 L36.4 29.8 L37.4 40.4 Z" fill="${GOLD}"/>
+                    ${gem(27.9, 31.6, 1.7)}${gem(32, 27.6, 1.85)}${gem(36.1, 31.6, 1.7)}`,
+                K: F => `
+                    ${BASE_IMPERIAL}
+                    <path d="M23.5 84 C25.5 73 26.5 62 25.5 51 L38.5 51 C37.5 62 38.5 73 40.5 84 Z" fill="${F}"/>
+                    ${gem(27.4, 78.5)}${gem(35.1, 74)}${gem(27.9, 68)}${gem(35.3, 62)}${gem(30.4, 56.5)}
+                    <ellipse cx="32" cy="49.7" rx="11.4" ry="3.2" fill="${GOLD}"/>
+                    <path d="M21.5 47.5 C21.5 39.5 23 32.5 25 26.5 L39 26.5 C41 32.5 42.5 39.5 42.5 47.5 Q32 51.5 21.5 47.5 Z" fill="${F}"/>
+                    ${gem(26.4, 41, 1.7)}${gem(37, 38, 1.7)}
+                    <path d="M20 26.5 L24 14.5 L28 22.5 L32 12.5 L36 22.5 L40 14.5 L44 26.5 Z" fill="${GOLD}"/>
+                    ${gem(24, 19, 2)}${gem(32, 15.5, 2.1)}${gem(40, 19, 2)}
+                    <rect x="30.6" y="1.5" width="2.8" height="10.5" rx="1.2" fill="${GOLD}"/>
+                    <rect x="27.4" y="4.2" width="9.2" height="2.8" rx="1.2" fill="${GOLD}"/>
+                    <ellipse cx="24.9" cy="34" rx="2.2" ry="4.6" fill="url(#gHi)" opacity="0.42"/>`
+            };
+
+            function pieceSvg(type, color) {
+                const F = color === 'w' ? 'url(#gW)' : 'url(#gB)';
+                return '<svg viewBox="0 0 64 100" preserveAspectRatio="none">' + PIECE_SVG[type](F) + '</svg>';
+            }
+
+            const pieces = [];
+
+            function create(color, type, f, r) {
+                const el = document.createElement('div');
+                el.className = 'piece ' + color;
+                el.dataset.t = type;
+                const fig = document.createElement('span');
+                fig.className = 'fig';
+                fig.innerHTML = pieceSvg(type, color);
+                el.appendChild(fig);
+                layer.appendChild(el);
+                const p = { el, color, type, f, r, home: { f, r }, dead: false };
+                pieces.push(p);
+                return p;
+            }
+
+            [...BACK, ...Array(8).fill('P')].forEach((_, i) => {
+                const type = i < 8 ? BACK[i] : 'P';
+                const r = type === 'P' ? 1 : 0;
+                create('w', type, i % 8, r);
+            });
+            [...BACK, ...Array(8).fill('P')].forEach((_, i) => {
+                const type = i < 8 ? BACK[i] : 'P';
+                const r = type === 'P' ? 6 : 7;
+                create('b', type, i % 8, r);
+            });
+
+            /* ---- проекция клеток: фигуры стоят в 2D-слое над доской ---- */
+            const PIECE_SCALE = 1.54;    // высота фигуры в ширинах клетки (в 1.5 раза больше)
+            let cellMap = [];
+
+            function measureBoard() {
+                const vr = video.getBoundingClientRect();
+                if (!vr.width || !grid.children.length) return false;
+                const cells = Array.from(grid.children).map(function (cell) {
+                    const c = cell.getBoundingClientRect();
+                    return {
+                        x: c.left + c.width / 2 - vr.left,
+                        y: c.top + c.height / 2 - vr.top,
+                        w: c.width
+                    };
+                });
+                /* если доска не отрисована (сцена скрыта) — сохраняем прежнюю карту */
+                if (cells.some(function (c) { return !c.w; })) return false;
+                cellMap = cells;
+                return true;
+            }
+
+            function cellAt(f, r) { return cellMap[(7 - r) * 8 + f]; }
+
+            function place(p) {
+                const cell = cellAt(p.f, p.r);
+                if (!cell || !cell.w) return;      // карта не измерена — оставляем как было
+                const h = cell.w * PIECE_SCALE;
+                const w = h * 0.64;
+                p.el.style.width  = w.toFixed(2) + 'px';
+                p.el.style.height = h.toFixed(2) + 'px';
+                p.el.style.left   = (cell.x - w / 2).toFixed(2) + 'px';
+                p.el.style.top    = (cell.y - h * 0.935).toFixed(2) + 'px';
+                /* глубина после поворота: кто ниже на экране — тот ближе (a-край ближний) */
+                p.el.style.zIndex = String(Math.round(cell.y * 16));
+            }
+
+            function placeAll() {
+                measureBoard();
+                pieces.forEach(place);
+            }
+
+            let resizeRaf = 0;
+            window.addEventListener('resize', function () {
+                cancelAnimationFrame(resizeRaf);
+                resizeRaf = requestAnimationFrame(function () {
+                    video.classList.add('instant');
+                    placeAll();
+                    requestAnimationFrame(function () { video.classList.remove('instant'); });
+                });
+            });
+
+            function find(color, type, f, r) {
+                return pieces.find(p => !p.dead && p.color === color && p.type === type && p.f === f && p.r === r);
+            }
+
+            /* ---- спецэффекты взятий: живой реестр, убираемый в reset ---- */
+            const fxs = [];
+            const ashes = [];
+
+            /* мини-корона для «король снимает корону и бьёт» (та же гамма, что у скульптуры) */
+            const CROWN_SVG =
+                '<svg viewBox="0 0 46 34" xmlns="http://www.w3.org/2000/svg">'
+                + '<path d="M6 25.5 L4.6 10 L12.5 16 L17 5.2 L23 13 L29 5.2 L33.5 16 L41.4 10 L40 25.5 Z" fill="#d9a544" stroke="#7a5518" stroke-width="1.2" stroke-linejoin="round"/>'
+                + '<rect x="5" y="19.8" width="36" height="6.2" rx="2.4" fill="#e8c26a" stroke="#7a5518" stroke-width="0.9"/>'
+                + '<path d="M6.6 24 L5.4 11 L12.5 16" stroke="rgba(255,236,170,0.85)" stroke-width="1" fill="none" stroke-linecap="round"/>'
+                + '<circle cx="23" cy="9.4" r="1.7" fill="#c01430"/><circle cx="22.5" cy="8.9" r="0.5" fill="rgba(255,255,255,0.85)"/>'
+                + '<circle cx="6.4" cy="13.4" r="1.25" fill="#c01430"/><circle cx="39.6" cy="13.4" r="1.25" fill="#c01430"/>'
+                + '<circle cx="17" cy="8.6" r="1.25" fill="#e8c26a"/><circle cx="29" cy="8.6" r="1.25" fill="#e8c26a"/>'
+                + '<circle cx="12.6" cy="22.9" r="1.5" fill="#c01430"/><circle cx="23" cy="22.9" r="1.5" fill="#c01430"/><circle cx="33.4" cy="22.9" r="1.5" fill="#c01430"/>'
+                + '<circle cx="12.6" cy="22.9" r="1.5" fill="url(#gRuby)"/>'
+                + '</svg>';
+
+            function fx(cls, props, ttl) {
+                const el = document.createElement('div');
+                el.className = cls;
+                for (const k in props) {
+                    if (k === '--dx') el.style.setProperty(k, props[k]);
+                    else el.style[k] = (typeof props[k] === 'number' && k !== 'zIndex') ? props[k] + 'px' : props[k];
+                }
+                layer.appendChild(el);
+                fxs.push(el);
+                if (ttl) setTimeout(() => removeFx(el), ttl);
+                return el;
+            }
+
+            function removeFx(el) {
+                el.remove();
+                const i = fxs.indexOf(el);
+                if (i >= 0) fxs.splice(i, 1);
+            }
+
+            function nextTick(fn) { requestAnimationFrame(() => requestAnimationFrame(fn)); }
+
+            function shakeBoard() {
+                video.classList.add('shake');
+                setTimeout(() => video.classList.remove('shake'), 480);
+            }
+
+            /* осколки летят из клетки жертвы (меч коня, стрела слона) */
+            function shardsFly(cell, victim) {
+                const s = cell.w;
+                const cols = victim.color === 'w'
+                    ? ['#f1e9d7', '#d9cbb2', '#cfa25e', '#e8c26a', '#9a8fa3']
+                    : ['#2b2433', '#3d3447', '#4a3f55', '#e8c26a', '#8c6b2f'];
+                for (let i = 0; i < 7; i++) {
+                    const sh = fx('shard', {
+                        left: cell.x - 4, top: cell.y - 5,
+                        width: 4 + Math.random() * 7,
+                        height: 3 + Math.random() * 5,
+                        background: cols[i % cols.length],
+                        zIndex: 8800,
+                        transform: 'rotate(' + (Math.random() * 90) + 'deg)'
+                    }, 950);
+                    sh.classList.add('fly');
+                    nextTick(() => {
+                        sh.style.transform = 'translate(' + (Math.random() * s * 1.7 - s * 0.85).toFixed(1) + 'px,' + (-s * (0.35 + Math.random() * 1.05)).toFixed(1) + 'px) rotate(' + (Math.random() * 660 - 330).toFixed(0) + 'deg)';
+                        sh.style.opacity = '0';
+                    });
+                }
+            }
+
+            /* ферзь: огромное пламя сжигает фигуру дотла, пепел остаётся */
+            async function killByQueen(toCell, victim) {
+                victim.el.classList.add('burn');
+                const s = toCell.w;
+                fx('fireball', {
+                    left: toCell.x - s * 1.15, top: toCell.y - s * 1.75,
+                    width: s * 2.3, height: s * 2.3, zIndex: 9000
+                }, 2100);
+                for (let i = 0; i < 6; i++) {
+                    fx('ember', {
+                        left: toCell.x - s * 0.6 + Math.random() * s * 1.15,
+                        top: toCell.y - s * 0.25,
+                        zIndex: 8950,
+                        '--dx': (Math.random() * 28 - 14).toFixed(0) + 'px',
+                        animationDelay: (i * 110) + 'ms'
+                    }, 1750);
+                }
+                shakeBoard();
+                await sleep(1700);
+                victim.el.classList.add('off');
+                for (let i = 0; i < 5; i++) {
+                    ashes.push(fx('ash', {
+                        left: toCell.x - s * 0.34 + Math.random() * s * 0.6,
+                        top: toCell.y - s * 0.14 + Math.random() * s * 0.26,
+                        width: s * (0.16 + Math.random() * 0.15),
+                        height: s * (0.09 + Math.random() * 0.1),
+                        zIndex: Math.round(toCell.y * 16) - 8      /* под фигурами */
+                    }));
+                }
+            }
+
+            /* ладья: копит разряд, молния вылетает из верха башни — жертва обращается в прах */
+            async function killByRook(mover, fromCell, toCell, victim) {
+                const s = fromCell.w;
+                mover.el.classList.add('charge');
+                setTimeout(() => mover.el.classList.remove('charge'), 1200);
+                await sleep(420);                     /* грозовая башня заряжается */
+                /* молния бьёт из верха ладьи в жертву */
+                victim.el.classList.add('dust');
+                const sx = fromCell.x, sy = fromCell.y - s * 1.2;
+                const ex = toCell.x, ey = toCell.y - s * 0.3;
+                const dx = ex - sx, dy = ey - sy;
+                const dist = Math.hypot(dx, dy);
+                const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+                fx('boltstr', {
+                    left: sx, top: sy - s * 0.25,
+                    width: dist, height: s * 0.5,
+                    transform: 'rotate(' + ang.toFixed(1) + 'deg)',
+                    transformOrigin: '0% 50%',
+                    zIndex: 9100
+                }, 1100);
+                /* искра попадания */
+                fx('glint', {
+                    left: ex - s * 0.14, top: ey - s * 0.5,
+                    width: 6, height: 6, zIndex: 9150,
+                    animationDelay: '0.12s'
+                }, 950);
+                fx('puff', {
+                    left: toCell.x - s * 0.6, top: toCell.y - s * 0.55,
+                    width: s * 1.2, height: s * 1.2, zIndex: 8700,
+                    animationDelay: '0.25s'
+                }, 1250);
+                fx('puff', {
+                    left: toCell.x - s * 0.4, top: toCell.y - s * 0.75,
+                    width: s * 0.8, height: s * 0.8, zIndex: 8700,
+                    animationDelay: '0.45s'
+                }, 1400);
+                shakeBoard();
+                await sleep(1450);                    /* прах оседает */
+                victim.el.classList.add('off');
+                await sleep(160);
+            }
+
+            /* конь: всадник вырастает и рассекает своим мечом в верхней точке прыжка;
+               жертва рассыпается, и лишь затем конь приземляется на клетку */
+            async function killByKnight(mover, fromCell, toCell, victim, dest) {
+                const s = toCell.w;
+                mover.el.classList.add('hop');
+                mover.f = dest[0];
+                mover.r = dest[1];
+                place(mover);                        /* конь отправляется в прыжок */
+                await sleep(360);                    /* вершина дуги */
+                /* всадник вырастает и размахивается в сторону жертвы */
+                const sdir = toCell.x >= fromCell.x ? 1 : -1;
+                mover.el.style.setProperty('--sdir', String(sdir));
+                mover.el.classList.add('slash');
+                setTimeout(() => {
+                    mover.el.classList.remove('slash');
+                    mover.el.style.removeProperty('--sdir');
+                }, 1150);
+                /* его огромный меч: свистит от руки всадника через жертву */
+                const blade = fx('swordfx', {
+                    left: toCell.x - s * 0.13, top: toCell.y - s * 2.4,
+                    width: s * 0.17, height: s * 2.4, zIndex: 9100,
+                    transform: 'rotate(' + (sdir > 0 ? -64 : 64) + 'deg) scale(1.05)',
+                    transformOrigin: '50% 100%',
+                    transition: 'transform 0.68s cubic-bezier(0.3, 0, 0.34, 1), opacity 0.55s ease-out'
+                }, 1200);
+                nextTick(() => {
+                    blade.style.transform = 'rotate(' + (sdir > 0 ? 60 : -60) + 'deg) scale(0.85)';
+                });
+                await sleep(320);                    /* размах доходит до цели */
+                victim.el.classList.add('cleave');
+                shardsFly(toCell, victim);
+                shakeBoard();
+                await sleep(280);                    /* жертва рассыпается, пока конь в воздухе */
+                victim.el.classList.add('off');
+                await sleep(240);                    /* посадка коня на клетку */
+                mover.el.classList.remove('hop');
+                await sleep(170);
+            }
+
+            /* слон: стрела лучника летит из клетки слона в жертву, потом слон идёт на клетку */
+            async function killByArrow(mover, victim, fromCell, toCell, dest) {
+                const dx = toCell.x - fromCell.x, dy = toCell.y - fromCell.y;
+                const len = Math.hypot(dx, dy);
+                const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+                const L = fromCell.w * 1.05;
+                const mv = fx('missile', {
+                    left: fromCell.x - L * 0.35, top: fromCell.y - 1,
+                    width: L, height: 2,
+                    transform: 'rotate(' + ang.toFixed(1) + 'deg)',
+                    background: 'linear-gradient(90deg, rgba(238,241,247,0) 0%, #eef1f7 22%, #dfe3ea 70%, #ffcf66 70%, #a97a25 100%)',
+                    zIndex: 8750,
+                    filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.7))'
+                }, 800);
+                mv.style.transition = 'left 0.38s linear, top 0.38s linear';
+                mv.style.animationDuration = '0.46s';
+                nextTick(() => {
+                    mv.style.left = (toCell.x - L * 0.35) + 'px';
+                    mv.style.top = (toCell.y - 1) + 'px';
+                });
+                await sleep(390);
+                victim.el.classList.add('cleave');
+                shardsFly(toCell, victim);
+                shakeBoard();
+                await sleep(560);
+                victim.el.classList.add('off');
+                /* клетка очистилась — слон занимает её */
+                await sleep(120);
+                mover.f = dest[0];
+                mover.r = dest[1];
+                place(mover);
+                await sleep(1000);
+            }
+
+            /* пешка-легионер: замах и укол своим копьём (увеличенным, из руки);
+               жертва гибнет — и только потом пешка входит на клетку */
+            async function killByPawn(mover, fromCell, toCell, victim) {
+                const s = fromCell.w;
+                victim.el.classList.add('dirge');
+                /* замах: корпус легионера подаётся в сторону жертвы */
+                const dir = toCell.x >= fromCell.x ? 1 : -1;
+                mover.el.style.setProperty('--dir', String(dir));
+                mover.el.classList.add('thrust');
+                setTimeout(() => {
+                    mover.el.classList.remove('thrust');
+                    mover.el.style.removeProperty('--dir');
+                }, 1050);
+                /* копьё вылетает из руки — крупное, с ярким наконечником */
+                const hx = fromCell.x + dir * s * 0.2, hy = fromCell.y - s * 0.34;
+                const dx = toCell.x - hx, dy = (toCell.y - s * 0.12) - hy;
+                const len = Math.hypot(dx, dy) * 1.2;
+                const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+                const spear = fx('missile', {
+                    left: hx + dx * 0.32 - len * 0.5, top: hy + dy * 0.32 - 2.75,
+                    width: len, height: 5.5,
+                    transform: 'rotate(' + ang.toFixed(1) + 'deg)',
+                    background: 'linear-gradient(90deg, rgba(210,160,86,0.28) 0%, rgba(196,142,84,0.96) 46%, #eef1f7 70%, #aab2c0 100%)',
+                    zIndex: 8950,
+                    filter: 'drop-shadow(0 0 6px rgba(255,224,170,0.85)) drop-shadow(0 2px 2px rgba(0,0,0,0.35))'
+                }, 720);
+                /* колющий рывок вперёд */
+                spear.style.transition = 'left 0.44s ease-out, top 0.44s ease-out';
+                nextTick(() => {
+                    spear.style.left = (hx + dx * 0.5 - len * 0.5) + 'px';
+                    spear.style.top = (hy + dy * 0.5 - 2.75) + 'px';
+                });
+                await sleep(1050);
+                victim.el.classList.add('off');
+            }
+
+            /* король: рукой снимает корону, бьёт короной жертву — та рушится с доски;
+               король входит на освободившееся поле уже после падения жертвы */
+            async function killByKing(mover, fromCell, toCell, victim) {
+                const s = fromCell.w;
+                /* король подаётся вперёд — рука снимает корону */
+                const fig = mover.el.querySelector('.fig');
+                fig.style.transformOrigin = '50% 90%';
+                fig.style.transition = 'transform 0.55s ease-out';
+                fig.style.transform = 'rotate(6deg)';
+                nextTick(() => { fig.style.transform = 'rotate(-2deg)'; });
+
+                /* корона поднимается над королём */
+                const crown = fx('crownfly', {
+                    left: fromCell.x - s * 0.19, top: fromCell.y - s * 0.78,
+                    width: s * 0.38, height: s * 0.27, zIndex: 9200
+                }, 3000);
+                crown.innerHTML = CROWN_SVG;
+                crown.style.opacity = '0';
+                crown.style.transition = 'top 0.7s ease-out, transform 0.7s ease-out, opacity 0.35s ease-out';
+                nextTick(() => {
+                    crown.style.opacity = '1';
+                    crown.style.top = (fromCell.y - s * 1.42) + 'px';
+                    crown.style.transform = 'rotate(-7deg)';
+                });
+                /* искры снятия короны */
+                for (let i = 0; i < 3; i++) {
+                    fx('glint', {
+                        left: fromCell.x - s * 0.16 + Math.random() * s * 0.32,
+                        top: fromCell.y - s * 1.2 - Math.random() * s * 0.3,
+                        width: 5, height: 5, zIndex: 9250,
+                        animationDelay: (i * 160) + 'ms'
+                    }, 1200);
+                }
+                await sleep(760);
+
+                /* бросок короны в жертву */
+                const kd = toCell.w;
+                crown.style.transition = 'left 0.42s ease-in, top 0.38s ease-in, transform 0.42s ease-in, opacity 0.45s ease-in';
+                nextTick(() => {
+                    crown.style.left = (toCell.x - kd * 0.19) + 'px';
+                    crown.style.top = (toCell.y - kd * 0.92) + 'px';
+                    crown.style.transform = 'rotate(150deg)';
+                });
+                await sleep(430);
+
+                /* удар: корона вспыхивает, жертва рушится */
+                victim.el.classList.add('knock');
+                fx('crownring', {
+                    left: toCell.x - kd * 0.43, top: toCell.y - kd * 0.72,
+                    width: kd * 0.86, height: kd * 0.86, zIndex: 9150
+                }, 950);
+                for (let i = 0; i < 2; i++) {
+                    fx('glint', {
+                        left: toCell.x - kd * 0.2 + Math.random() * kd * 0.4,
+                        top: toCell.y - kd * 0.72,
+                        width: 5, height: 5, zIndex: 9250,
+                        animationDelay: (i * 140) + 'ms'
+                    }, 1100);
+                }
+                crown.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+                nextTick(() => {
+                    crown.style.opacity = '0';
+                    crown.style.transform = 'scale(1.5) rotate(150deg)';
+                });
+
+                shakeBoard();
+                await sleep(1360);                   /* жертва валится и исчезает */
+                victim.el.classList.add('off');
+                /* король выпрямляется — корона возвращается на голову */
+                await sleep(60);
+                fig.style.transform = 'none';
+                setTimeout(() => { fig.style.transform = ''; fig.style.transition = ''; fig.style.transformOrigin = ''; }, 500);
+            }
+
+            /* ---- сценарий партии: Лондонская система, миниатюра с греческим даром ---- */
+            const steps = [
+                { color: 'w', type: 'P', from: [3, 1], to: [3, 3], cap: '1. d4' },
+                { color: 'b', type: 'P', from: [3, 6], to: [3, 4], cap: '1… d5' },
+                { color: 'w', type: 'B', from: [2, 0], to: [5, 3], cap: '2. Сf4' },
+                { color: 'b', type: 'N', from: [6, 7], to: [5, 5], cap: '2… Кf6' },
+                { color: 'w', type: 'P', from: [4, 1], to: [4, 2], cap: '3. e3' },
+                { color: 'b', type: 'P', from: [4, 6], to: [4, 5], cap: '3… e6' },
+                { color: 'w', type: 'N', from: [6, 0], to: [5, 2], cap: '4. Кf3' },
+                { color: 'b', type: 'P', from: [2, 6], to: [2, 4], cap: '4… c5' },
+                { color: 'w', type: 'P', from: [2, 1], to: [2, 2], cap: '5. c3' },
+                { color: 'b', type: 'N', from: [1, 7], to: [2, 5], cap: '5… Кc6' },
+                { color: 'w', type: 'N', from: [1, 0], to: [3, 1], cap: '6. Кbd2' },
+                { color: 'b', type: 'P', from: [0, 6], to: [0, 4], cap: '6… a5' },
+                { color: 'w', type: 'P', from: [0, 1], to: [0, 3], cap: '7. a4' },
+                { color: 'b', type: 'B', from: [2, 7], to: [3, 6], cap: '7… Сd7' },
+                { color: 'w', type: 'B', from: [5, 0], to: [3, 2], cap: '8. Сd3' },
+                { color: 'b', type: 'P', from: [2, 4], to: [3, 3], capture: true, cap: '8… c:d4' },
+                { color: 'w', type: 'P', from: [4, 2], to: [3, 3], capture: true, cap: '9. e:d4' },
+                { color: 'b', type: 'B', from: [3, 6], to: [2, 7], cap: '9… Сc8' },
+                { color: 'w', type: 'P', from: [7, 1], to: [7, 2], cap: '10. h3' },
+                { color: 'b', type: 'B', from: [5, 7], to: [3, 5], cap: '10… Сd6' },
+                { color: 'w', type: 'N', from: [5, 2], to: [4, 4], cap: '11. Кe5' },
+                { color: 'b', type: 'B', from: [3, 5], to: [4, 4], capture: true, cap: '11… С:е5' },
+                { color: 'w', type: 'P', from: [3, 3], to: [4, 4], capture: true, cap: '12. d:e5' },
+                { color: 'b', type: 'N', from: [5, 5], to: [3, 6], cap: '12… Кd7' },
+                { color: 'w', type: 'N', from: [3, 1], to: [5, 2], cap: '13. Кf3' },
+                { color: 'b', type: 'K', from: [4, 7], to: [6, 7], rook: { from: [7, 7], to: [5, 7] }, cap: '13… 0-0' },
+                { color: 'w', type: 'K', from: [4, 0], to: [6, 0], rook: { from: [7, 0], to: [5, 0] }, cap: '14. 0-0' },
+                { color: 'b', type: 'N', from: [3, 6], to: [2, 4], cap: '14… Кc5' },
+                { color: 'w', type: 'B', from: [3, 2], to: [7, 6], capture: true, hot: true, cap: '15. С:h7+!! — греческий дар' },
+                { color: 'b', type: 'K', from: [6, 7], to: [7, 6], capture: true, cap: '15… Кр:h7' },
+                { color: 'w', type: 'N', from: [5, 2], to: [6, 4], hot: true, cap: '16. Кg5+!' },
+                { color: 'b', type: 'K', from: [7, 6], to: [6, 5], cap: '16… Крg6' },
+                { color: 'w', type: 'Q', from: [3, 0], to: [6, 3], cap: '17. Фg4' },
+                { color: 'b', type: 'N', from: [2, 5], to: [4, 4], capture: true, cap: '17… К:e5' },
+                { color: 'w', type: 'Q', from: [6, 3], to: [6, 2], cap: '18. Фg3' },
+                { color: 'b', type: 'K', from: [6, 5], to: [7, 4], cap: '18… Крh5' },
+                { color: 'w', type: 'R', from: [5, 0], to: [4, 0], cap: '19. Лfe1' },
+                { color: 'b', type: 'N', from: [2, 4], to: [4, 3], cap: '19… Кe4' },
+                { color: 'w', type: 'N', from: [6, 4], to: [4, 3], capture: true, cap: '20. К:e4' },
+                { color: 'b', type: 'P', from: [3, 4], to: [4, 3], capture: true, cap: '20… d:e4' },
+                { color: 'w', type: 'R', from: [4, 0], to: [4, 3], capture: true, cap: '21. Л:e4' },
+                { color: 'b', type: 'N', from: [4, 4], to: [6, 5], cap: '21… Кg6' },
+                { color: 'w', type: 'Q', from: [6, 2], to: [6, 3], hot: true, cap: '22. Фg4# — мат!!' }
+            ];
+
+            /* ---- гейты: партия живёт только пока арена на экране ---- */
+            let chessOn = false, loopStarted = false;
+            const chessGates = [];
+
+            function wakeChess() {
+                chessOn = true;
+                while (chessGates.length) chessGates.shift()();
+            }
+
+            /* пауза: пока арена не в кадре, любой await sleep() висит на воротах */
+            const sleep = ms => new Promise(res => setTimeout(res, ms)).then(function () {
+                return chessOn ? null : new Promise(function (res) { chessGates.push(res); });
+            });
+
+            function setCaption(text, hot) {
+                capbar.textContent = text;
+                capbar.classList.toggle('hot', !!hot);
+            }
+
+            /* шах: король противника вспыхивает тревожным красным */
+            function lightCheck(moverColor) {
+                const k = pieces.find(p => !p.dead && p.type === 'K' && p.color !== moverColor);
+                if (k) k.el.classList.add('check');
+            }
+
+            /* вызывается, когда ход приземлился: прошлый шах разрешился,
+               новый (если есть) зажигает короля */
+            function resolveCheck(step) {
+                pieces.forEach(p => p.el.classList.remove('check'));
+                if (/[+#]/.test(step.cap)) lightCheck(step.color);
+            }
+
+            function reset() {
+                Array.from(fxs).forEach(removeFx);
+                ashes.length = 0;
+                video.classList.add('instant');
+                pieces.forEach(p => {
+                    p.dead = false;
+                    p.f = p.home.f;
+                    p.r = p.home.r;
+                    p.el.classList.remove('off', 'hop', 'born', 'burn', 'dust', 'dirge', 'cleave', 'knock', 'thrust', 'slash', 'charge', 'check');
+                    p.el.style.removeProperty('--dir');
+                    p.el.style.removeProperty('--sdir');
+                    place(p);
+                });
+                void video.offsetWidth;
+                video.classList.remove('instant');
+                setCaption('Ожившая партия…', false);
+            }
+
+            function reveal() {
+                pieces.forEach((p, i) => {
+                    const fig = p.el.firstElementChild;
+                    fig.style.animation = 'none';
+                    void fig.offsetWidth;
+                    fig.style.animation = '';
+                    p.el.classList.add('born');
+                    fig.style.animationDelay = (i * 16) + 'ms';
+                });
+                setTimeout(() => pieces.forEach(p => {
+                    p.el.classList.remove('born');
+                    p.el.firstElementChild.style.animationDelay = '';
+                }), 1400);
+            }
+
+            async function playStep(step) {
+                const mover = find(step.color, step.type, step.from[0], step.from[1]);
+                if (!mover) return;
+                setCaption(step.cap, !!step.hot);
+
+                const fromCell = cellAt(step.from[0], step.from[1]);
+                const toCell = cellAt(step.to[0], step.to[1]);
+                const victim = step.capture
+                    ? pieces.find(p =>
+                        !p.dead && p !== mover && p.color !== step.color &&
+                        p.f === step.to[0] && p.r === step.to[1])
+                    : null;
+
+                /* рокировка: вслед за королём перебегает ладья */
+                const rook = step.rook && find(step.color, 'R', step.rook.from[0], step.rook.from[1]);
+
+                /* шествие на освободившуюся клетку */
+                async function stormIn() {
+                    mover.f = step.to[0];
+                    mover.r = step.to[1];
+                    place(mover);
+                    await sleep(980);
+                }
+
+                /* дальний бой: жертва гибнет до того, как атакующий займёт клетку */
+                if (victim) {
+                    victim.dead = true;
+                    if (step.type === 'B') {
+                        await killByArrow(mover, victim, fromCell, toCell, step.to);
+                        await sleep(120);
+                        resolveCheck(step);
+                        return;
+                    }
+                    if (step.type === 'P' || step.type === 'R') {
+                        if (step.type === 'P') await killByPawn(mover, fromCell, toCell, victim);
+                        else await killByRook(mover, fromCell, toCell, victim);
+                        await sleep(120);
+                        await stormIn();             /* клетка свободна — фигура входит */
+                        resolveCheck(step);
+                        return;
+                    }
+                    if (step.type === 'N') {
+                        await killByKnight(mover, fromCell, toCell, victim, step.to);
+                        resolveCheck(step);
+                        return;
+                    }
+                    if (step.type === 'K') {
+                        await killByKing(mover, fromCell, toCell, victim);
+                        await stormIn();             /* поле занято лишь после падения жертвы */
+                        resolveCheck(step);
+                        return;
+                    }
+                    /* ферзь огнём взял клетку сам — падение ниже */
+                }
+
+                if (step.type === 'N') mover.el.classList.add('hop');
+                mover.f = step.to[0];
+                mover.r = step.to[1];
+                place(mover);
+                if (rook) await sleep(280);
+                if (rook) {
+                    rook.f = step.rook.to[0];
+                    rook.r = step.rook.to[1];
+                    place(rook);
+                }
+                await sleep(1000);
+                mover.el.classList.remove('hop');
+                resolveCheck(step);                  /* шах объявлен — король красный */
+
+                if (victim) {                        /* ферзь: испепеляет, уже придя на клетку */
+                    await killByQueen(toCell, victim);
+                    await sleep(160);
+                } else {
+                    await sleep(200);
+                }
+            }
+
+            /* ---- кнопка «Повторить партию»: играем один раз и ждём нажатия ---- */
+            const replayBtn = document.getElementById('replayBtn');
+            let replayResolve = null;
+
+            function waitReplay() {
+                return new Promise(res => { replayResolve = res; });
+            }
+
+            replayBtn.addEventListener('click', function () {
+                if (!replayBtn.classList.contains('show')) return;
+                replayBtn.classList.remove('show');
+                setCaption('Ожившая партия…', false);
+                if (replayResolve) {
+                    const done = replayResolve;
+                    replayResolve = null;
+                    done();
+                }
+            });
+
+            async function loop() {
+                placeAll();
+                while (true) {
+                    reset();
+                    reveal();
+                    await sleep(1500);
+                    for (const step of steps) {
+                        await playStep(step);
+                    }
+                    /* мат 22. Фg4#: король побеждённых сгорает в огне ферзя */
+                    const bk = pieces.find(p => !p.dead && p.color === 'b' && p.type === 'K');
+                    if (bk) await killByQueen(cellAt(bk.f, bk.r), bk);
+                    await sleep(2600);
+                    setCaption('Мат. Партия окончена', false);
+                    replayBtn.classList.add('show');   /* кнопка ждёт в верхнем углу */
+                    await waitReplay();
+                    await sleep(400);
+                }
+            }
+
+            /* старт партии: когда арена долистана до экрана; арена ушла — пауза */
+            async function startLoop() {
+                if (loopStarted) return;
+                loopStarted = true;
+                wakeChess();
+                await sleep(400);             /* момент на проявление секции */
+                loop();
+            }
+
+            function syncChess() {
+                const vh = window.innerHeight || document.documentElement.clientHeight;
+                const r = video.getBoundingClientRect();
+                const onScreen = r.top < vh * 0.9 && r.bottom > vh * 0.05;
+                if (onScreen) { if (!loopStarted) startLoop(); else wakeChess(); }
+                else if (loopStarted) chessOn = false;
+            }
+
+            window.addEventListener('scroll', syncChess, { passive: true });
+            window.addEventListener('resize', syncChess);
+            setInterval(syncChess, 350);      /* сторож: в сонных вкладках живы только таймеры */
+            syncChess();
+        })();
+    </script>
+
+    <script>
+        /* ================= ТРЕЙДИНГ: «видео» динамики BTC за 10 лет ================= */
+        (function () {
+            const box = document.getElementById('btcVideo');
+            if (!box) return;
+            const clip = document.getElementById('btcClip');
+            const areaPath = document.getElementById('btcAreaPath');
+            const glowPath = document.getElementById('btcGlowPath');
+            const linePath = document.getElementById('btcLinePath');
+            const head = document.getElementById('btcHead');
+            const headGlow = document.getElementById('btcHeadGlow');
+            const priceEl = document.getElementById('btcPrice');
+            const fillEl = document.getElementById('btcFill');
+
+            /* поле графика во viewBox 212x105 */
+            const X0 = 26, X1 = 206, Y0 = 8, Y1 = 88;
+            const T0 = 2016;
+
+            /* опорные вехи цены BTC (год, $) */
+            const A = [
+                [2016.00, 430],  [2016.50, 660],  [2016.90, 960],
+                [2017.30, 1100], [2017.60, 2500], [2017.85, 4600], [2017.98, 19500],
+                [2018.15, 11000],[2018.40, 7000], [2018.70, 6300], [2018.98, 3700],
+                [2019.30, 4100], [2019.50, 12500],[2019.70, 10200],[2019.98, 7200],
+                [2020.15, 8700], [2020.22, 4800], [2020.40, 8800], [2020.60, 11500],[2020.98, 29000],
+                [2021.15, 47000],[2021.25, 57000],[2021.35, 43000],[2021.55, 34000],[2021.85, 69000],[2021.98, 46000],
+                [2022.25, 40000],[2022.45, 29000],[2022.60, 19000],[2022.90, 20000],[2022.98, 16500],
+                [2023.20, 22500],[2023.45, 30000],[2023.65, 26000],[2023.85, 29000],[2023.98, 42000],
+                [2024.25, 63000],[2024.32, 71000],[2024.50, 57000],[2024.65, 61000],[2024.90, 82000],[2024.98, 97000],
+                [2025.15, 93000],[2025.30, 84000],[2025.50, 105000],[2025.65, 111000],[2025.85, 126000],[2025.98, 106000],
+                [2026.15, 98000],[2026.35, 111000],[2026.55, 105000],[2026.70, 94000],[2026.82, 82000]
+            ];
+
+            /* сглаженная кривая + лёгкий детерминированный шум */
+            const ts = [], ps = [];
+            for (let i = 0; i < A.length - 1; i++) {
+                const ta = A[i][0], pa = A[i][1], tb = A[i + 1][0], pb = A[i + 1][1];
+                const n = Math.max(2, Math.round((tb - ta) / 0.012));
+                for (let k = 0; k < n; k++) {
+                    const u = k / n, t = ta + (tb - ta) * u;
+                    const base = pa + (pb - pa) * u;
+                    const w = Math.sin(t * 53.7) * 0.5 + Math.sin(t * 17.3 + 1.7) * 0.35 + Math.sin(t * 97.1 + 0.4) * 0.15;
+                    ts.push(t); ps.push(base * (1 + 0.042 * w));
+                }
+            }
+            ts.push(A[A.length - 1][0]); ps.push(A[A.length - 1][1]);
+            const N = ts.length, TEND = A[A.length - 1][0];
+
+            const grid = document.getElementById('btcGrid');
+            const NS = 'http://www.w3.org/2000/svg';
+            const easeIO = k => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+            const lerp = (a, b, k) => a + (b - a) * k;
+
+            /* клип: кривая — в поле графика, но по краям запас 6px,
+               чтобы точка цены и её свечение не обрезались */
+            clip.setAttribute('x', X0 - 6);
+            clip.setAttribute('width', X1 - X0 + 12);
+
+            /* финальный вид: вся десятилетняя история на лог-шкале */
+            const FULL = { tL: T0, tR: TEND, lLo: Math.log10(300), lHi: Math.log10(140000) };
+
+            /* ось лет и линии-декады — проявляются только при финальном сжатии */
+            const axisG = document.createElementNS(NS, 'g');
+            axisG.style.opacity = '0';
+            for (let y = 2016; y <= 2026; y += 2) {
+                const tx = document.createElementNS(NS, 'text');
+                tx.setAttribute('x', X0 + (y - T0) / (TEND - T0) * (X1 - X0));
+                tx.setAttribute('y', 99);
+                tx.setAttribute('text-anchor', 'middle');
+                tx.setAttribute('font-size', '6.5');
+                tx.setAttribute('fill', 'rgba(255,255,255,0.4)');
+                tx.textContent = y;
+                axisG.appendChild(tx);
+            }
+            grid.appendChild(axisG);
+
+            const decadeG = document.createElementNS(NS, 'g');
+            decadeG.style.opacity = '0';
+            [[1000, '$1k'], [10000, '$10k'], [100000, '$100k']].forEach(function (row) {
+                const ln = document.createElementNS(NS, 'line');
+                ln.setAttribute('x1', X0); ln.setAttribute('x2', X1);
+                ln.setAttribute('stroke', 'rgba(255,255,255,0.09)');
+                ln.setAttribute('stroke-dasharray', '2 3');
+                ln.dataset.p = row[0];
+                decadeG.appendChild(ln);
+                const tx = document.createElementNS(NS, 'text');
+                tx.setAttribute('x', X0 - 3);
+                tx.setAttribute('text-anchor', 'end');
+                tx.setAttribute('font-size', '6');
+                tx.setAttribute('fill', 'rgba(255,255,255,0.45)');
+                tx.textContent = row[1];
+                tx.dataset.p = row[0];
+                decadeG.appendChild(tx);
+            });
+            grid.appendChild(decadeG);
+
+            /* «тайкод» текущего года — виден, пока график прокручивается */
+            const yearNow = document.createElementNS(NS, 'text');
+            yearNow.setAttribute('x', X1 - 2);
+            yearNow.setAttribute('y', 99);
+            yearNow.setAttribute('text-anchor', 'end');
+            yearNow.setAttribute('font-size', '7');
+            yearNow.setAttribute('font-weight', '700');
+            yearNow.setAttribute('fill', 'rgba(247,147,26,0.85)');
+            grid.appendChild(yearNow);
+
+            /* проигрывание: окно шириной 3 года; в конце — сжатие всей истории */
+            const DUR = 28000, ZOOM_MS = 1200;
+            const fmt = p => '$' + Math.round(p).toLocaleString('en-US');
+            let prog = 0, playing = true, ended = false, zoomK = 0, endView = null, last = null;
+
+            function restart() {
+                prog = 0;
+                ended = false;
+                playing = true;
+                zoomK = 0;
+                box.classList.remove('ended', 'paused');
+                box.title = 'Пауза / воспроизвести';
+            }
+
+            /* индекс точки кривой, ближайшей ко времени t */
+            function idxAt(t) {
+                return Math.min(N - 1, Math.max(0, Math.round((t - T0) / (TEND - T0) * (N - 1))));
+            }
+
+            /* текущий вид: окно времени [tL..tR] и лог-диапазон цен [lLo..lHi] */
+            function currentView() {
+                const tP = T0 + prog * (TEND - T0);
+                if (!ended) {
+                    /* окно 3 года: первые три года стоит, дальше ползёт за головкой */
+                    const tR = Math.max(T0 + 3, tP), tL = tR - 3;
+                    const i0 = Math.max(0, idxAt(tL) - 3);
+                    const i1 = Math.min(N - 1, idxAt(tP) + 1);
+                    let lLo = 99, lHi = -99;
+                    for (let i = i0; i <= i1; i++) {
+                        if (ts[i] < tL - 0.01) continue;
+                        const l = Math.log10(ps[i]);
+                        if (l < lLo) lLo = l;
+                        if (l > lHi) lHi = l;
+                    }
+                    if (lHi - lLo < 0.04) { const c = (lHi + lLo) / 2; lLo = c - 0.02; lHi = c + 0.02; }
+                    const pad = (lHi - lLo) * 0.18;
+                    return { tL: tL, tR: tR, tP: tP, lLo: lLo - pad, lHi: lHi + pad };
+                }
+                /* финал: плавное сжатие к полному виду */
+                const k = easeIO(Math.min(1, zoomK));
+                return {
+                    tL: lerp(endView.tL, FULL.tL, k),
+                    tR: lerp(endView.tR, FULL.tR, k),
+                    tP: TEND,
+                    lLo: lerp(endView.lLo, FULL.lLo, k),
+                    lHi: lerp(endView.lHi, FULL.lHi, k)
+                };
+            }
+
+            function render() {
+                const v = currentView();
+                const xMap = t => X0 + (t - v.tL) / (v.tR - v.tL) * (X1 - X0);
+                const yMap = p => Y1 - (Math.log10(p) - v.lLo) / (v.lHi - v.lLo) * (Y1 - Y0);
+
+                /* кривая — только нарисованная часть окна (без будущего) */
+                const iStart = Math.max(0, idxAt(v.tL) - 3);
+                const iEnd = Math.min(N - 1, idxAt(v.tP) + 1);
+                const headP = ps[idxAt(v.tP)];
+                let d = '', xFirst = xMap(ts[iStart]).toFixed(2);
+                for (let i = iStart; i <= iEnd; i++) {
+                    if (ts[i] > v.tP) break;
+                    d += (d ? 'L' : 'M') + xMap(ts[i]).toFixed(2) + ' ' + yMap(ps[i]).toFixed(2);
+                }
+                d += 'L' + xMap(v.tP).toFixed(2) + ' ' + yMap(headP).toFixed(2);
+                linePath.setAttribute('d', d);
+                glowPath.setAttribute('d', d);
+                areaPath.setAttribute('d', d + 'L' + xMap(v.tP).toFixed(2) + ' ' + Y1 +
+                                         'L' + xFirst + ' ' + Y1 + 'Z');
+
+                /* головка — на текущем времени */
+                const hx = xMap(v.tP), hy = yMap(headP);
+                head.setAttribute('cx', hx); head.setAttribute('cy', hy);
+                headGlow.setAttribute('cx', hx); headGlow.setAttribute('cy', hy);
+
+                /* счётчик цены — тикает каждый кадр; цвет по направлению хода */
+                const backP = ps[idxAt(Math.max(T0, v.tP - 0.25))];
+                priceEl.textContent = fmt(headP);
+                priceEl.classList.toggle('down', headP < backP);
+                fillEl.style.width = (prog * 100).toFixed(2) + '%';
+
+                /* тайкод года — пока график прокручивается */
+                yearNow.textContent = Math.min(2026, Math.floor(v.tP));
+                yearNow.style.opacity = ended ? String(Math.max(0, 1 - zoomK)) : '1';
+
+                /* декады и ось лет проявляются при финальном сжатии */
+                const zk = ended ? easeIO(Math.min(1, zoomK)) : 0;
+                decadeG.style.opacity = String(zk);
+                axisG.style.opacity = String(zk);
+                if (zk > 0) {
+                    const kids = decadeG.children;
+                    for (let i = 0; i < kids.length; i++) {
+                        const el = kids[i], y = yMap(+el.dataset.p);
+                        if (el.tagName === 'line') { el.setAttribute('y1', y); el.setAttribute('y2', y); }
+                        else el.setAttribute('y', y + 2);
+                    }
+                }
+            }
+
+            /* привод кадров: rAF; если окружение его заморозило (сонная вкладка,
+               встроенное превью) — через 90мс переключаемся на таймеры */
+            let rafSeen = false, pumpTimerMode = false;
+
+            function pumpNext(fn) {
+                if (pumpTimerMode) { setTimeout(function () { fn(16); }, 16); return; }
+                requestAnimationFrame(function (ts) { rafSeen = true; fn(ts); });
+                setTimeout(function () {
+                    if (!rafSeen) { pumpTimerMode = true; fn(16); }
+                }, 90);
+            }
+
+            function frame(tms) {
+                if (last == null) last = tms;
+                const dt = Math.min(100, tms - last); last = tms;
+                if (playing && !ended) {
+                    prog += dt / DUR;
+                    if (prog >= 1) {
+                        prog = 1;
+                        endView = currentView();   /* последнее окно — из него сожмём */
+                        ended = true;
+                        playing = false;
+                        box.classList.remove('paused');
+                        box.classList.add('ended');   /* появляется ⟲ «смотреть снова» */
+                        box.title = 'Посмотреть снова';
+                    }
+                }
+                if (ended && zoomK < 1) zoomK = Math.min(1, zoomK + dt / ZOOM_MS);
+                render();
+                pumpNext(frame);
+            }
+
+            box.addEventListener('click', function () {
+                if (ended) { restart(); return; }
+                playing = !playing;
+                box.classList.toggle('paused', !playing);
+            });
+
+            /* уважение к reduced motion: сразу показываем всю историю */
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                prog = 1;
+                endView = currentView();
+                ended = true;
+                zoomK = 1;
+                render();
+                return;
+            }
+            /* ---- график стартует вместе с появлением Трейдинга: цепочка разделов
+                    (см. нижний скрипт) вызывает window.__btcStart в момент, когда
+                    блок Трейдинга получает .visible;
+                    вне экрана — пауза, обратно к экрану — продолжение ---- */
+            let chartStarted = false, autoPaused = false;
+
+            function startChart() {
+                if (chartStarted) return;
+                chartStarted = true;
+                pumpNext(frame);
+            }
+            window.__btcStart = startChart;    /* регистрация: стартовать по сигналу цепочки появления */
+
+            function syncChart() {
+                const vh = window.innerHeight || document.documentElement.clientHeight;
+                const br = box.getBoundingClientRect();
+                const onScreen = br.top < vh * 0.88 && br.bottom > vh * 0.08;
+                if (chartStarted && !ended) {
+                    if (!onScreen) {
+                        if (playing) autoPaused = true;
+                        playing = false;
+                        box.classList.add('paused');
+                    } else if (autoPaused) {
+                        autoPaused = false;
+                        playing = true;
+                        box.classList.remove('paused');
+                    }
+                }
+            }
+
+            window.addEventListener('scroll', syncChart, { passive: true });
+            window.addEventListener('resize', syncChart);
+            setInterval(syncChart, 350);      /* сторож: в сонных вкладках живы только таймеры */
+            syncChart();
+        })();
+
+    </script>
+
+    <script>
+        /* Появление разделов: «цепочка 150px».
+           Шахматы видны сразу; каждый следующий раздел появляется,
+           когда после появления предыдущего докрутили ещё 150px. */
+        (function () {
+            const targets = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+            let shown = 0, anchor = 0;
+
+            function update() {
+                let y = window.scrollY || 0;
+                if (y < 0) y = 0;
+                if (shown === 0) { targets[0].classList.add('visible'); shown = 1; anchor = y; }
+                if (shown > 0 && y < anchor) anchor = y;   /* поднялись выше фронтира — счёт заново */
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                while (shown < targets.length && (y >= anchor + 150 || y >= maxScroll - 1)) {
+                    targets[shown].classList.add('visible');
+                    if (shown === 1 && window.__btcStart) window.__btcStart();   /* Трейдинг появился — BTC-график стартует */
+                    shown++; anchor = y;
+                }
+            }
+
+            window.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', update);
+            setInterval(update, 350);      /* сторож: в сонных вкладках живы только таймеры */
+            update();
+        })();
+    </script>
+</body>
+</html>
