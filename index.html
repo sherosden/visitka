@@ -1272,6 +1272,285 @@
             font-size: 13px;
             color: rgba(234, 234, 234, 0.5);
         }
+
+        /* ================= ПОГОДА: фон + виджет (Москва) ================= */
+        .weather-layer {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;                     /* анимация погоды — фон страницы, под контентом */
+        }
+
+        .weather-glow {
+            position: absolute;
+            inset: 0;
+            display: none;
+            background: radial-gradient(ellipse at 50% 40%, rgba(255, 214, 140, 0.20), rgba(255, 170, 90, 0) 62%);
+        }
+        .weather-layer[data-cond="clear"] .weather-glow { display: block; animation: weatherGlow 7s ease-in-out infinite alternate; }
+        @keyframes weatherGlow { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.12); opacity: 0.85; } }
+
+        .weather-clouds { position: absolute; inset: 0; overflow: hidden; }
+        .weather-clouds span {
+            position: absolute;
+            top: 8%;
+            width: 150px;
+            height: 40px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(150, 158, 176, 0.34), rgba(110, 118, 138, 0.26));
+            filter: blur(8px);
+            animation: weatherCloudMove linear infinite;
+        }
+        .weather-clouds span:nth-child(2) { top: 18%; width: 105px; height: 28px; opacity: 0.8; animation-duration: 150s; animation-delay: -70s; }
+        @keyframes weatherCloudMove { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+        .weather-fog { position: absolute; inset: 0; overflow: hidden; }
+        .weather-fog span {
+            position: absolute;
+            top: 24%;
+            left: -25%;
+            width: 150%;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(200, 205, 215, 0.20), rgba(200, 205, 215, 0) 70%);
+            filter: blur(6px);
+            animation: weatherFogMove linear infinite;
+        }
+        @keyframes weatherFogMove { from { transform: translateX(-12%); } to { transform: translateX(12%); } }
+
+        .weather-rain { position: absolute; inset: 0; overflow: hidden; }
+        .weather-rain span {
+            position: absolute;
+            top: -8%;
+            width: 1.5px;
+            height: 44px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, rgba(190, 215, 255, 0), rgba(150, 185, 235, 0.9));
+            animation: weatherRainFall linear infinite;
+        }
+        @keyframes weatherRainFall { from { transform: translateY(-12%); opacity: 0; } 12% { opacity: 0.85; } to { transform: translateY(116%); opacity: 0; } }
+
+        .weather-snow { position: absolute; inset: 0; overflow: hidden; }
+        .weather-snow span {
+            position: absolute;
+            top: -4%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+            animation: weatherSnowFall linear infinite;
+        }
+        @keyframes weatherSnowFall { from { transform: translate(0, -4%); opacity: 0; } 10% { opacity: 0.9; } to { transform: translate(var(--sway, 6px), 106%); opacity: 0; } }
+
+        .weather-storm { position: absolute; inset: 0; display: none; background: linear-gradient(180deg, rgba(6, 8, 16, 0.45), rgba(10, 12, 22, 0.72)); }
+        .weather-layer[data-cond="storm"] .weather-storm { display: block; }
+        .weather-bolt {
+            position: absolute;
+            top: 8%;
+            left: 26%;
+            width: 3px;
+            height: 60px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, rgba(210, 235, 255, 0.95), rgba(170, 210, 255, 0.25));
+            clip-path: polygon(50% 0, 38% 0, 46% 34%, 30% 38%, 52% 52%, 44% 88%, 64% 58%, 54% 56%, 70% 30%, 60% 27%);
+            animation: weatherBoltFlash 9s linear infinite;
+        }
+        @keyframes weatherBoltFlash { 0%, 100% { opacity: 0; } 3% { opacity: 1; } 5% { opacity: 0.25; } 7% { opacity: 1; } 9% { opacity: 0; } }
+
+        /* ---- виджет погоды: фиксированный чип справа вверху ---- */
+        .weather {
+            position: fixed;
+            top: 14px;
+            right: max(14px, env(safe-area-inset-right, 0px));
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1px;
+            padding: 9px 14px;
+            border-radius: 14px;
+            background: rgba(10, 12, 18, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #f5f6f8;
+            text-align: right;
+            font-family: 'Arial Black', 'Arial', sans-serif;
+            pointer-events: none;
+            max-width: calc(100vw - 28px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+        .weather-city {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.62);
+        }
+        .weather-time {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.15;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+            font-variant-numeric: tabular-nums;
+        }
+        .weather-state {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffd28a;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+        }
+        .weather-update {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-size: 8.5px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        @media (max-width: 480px) {
+            .weather { top: 8px; right: max(8px, env(safe-area-inset-right, 0px)); padding: 7px 10px; border-radius: 12px; }
+            .weather-time { font-size: 16px; }
+            .weather-state { font-size: 11px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .weather-layer[data-cond="clear"] .weather-glow { animation: none; opacity: 0.5; }
+            .weather-rain span, .weather-snow span, .weather-clouds span, .weather-fog span,
+            .weather-storm, .weather-bolt, .we-raindrop, .we-snowflake, .we-bolt, .we-sun { animation: none !important; }
+            .we-sun { transform: scale(1); opacity: 0.9; }
+        }
+
+        /* ================= СКЛОННЫЙ НИЖНИЙ СИСТЕМА ПОГОДЫ ================= */
+        .weather-sky {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Sun corona glow */
+        .we-sun-corona {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            right: -20%;
+            bottom: -20%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,230,120,0.15) 0%, rgba(255,200,60,0) 70%);
+            pointer-events: none;
+            animation: sunCorona 6s ease-in-out infinite;
+        }
+        @keyframes sunCorona { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+
+        /* Солнце — светится, когда ясно */
+        .we-sun {
+            position: absolute;
+            top: 12%;
+            right: 14%;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fffef0, #fff9c4 30%, #ffe066 60%, #fdaf3a 100%);
+            filter: drop-shadow(0 0 16px #fff9a0) drop-shadow(0 0 32px #ffd040);
+            opacity: 1;
+            animation: sunPulse 6s ease-in-out infinite;
+        }
+        @keyframes sunPulse { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.15); opacity: 1; } }
+        .weather-layer[data-cond="clear"] .we-sun { opacity: 1; }
+        .weather-layer[data-cond="partly"] .we-sun { opacity: 0.5; }
+
+        /* Облака — мягкие blurred-эллипсы, медленно едут горизонтом */
+        .we-cloud {
+            position: absolute;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(200, 210, 230, 0.45), rgba(120, 130, 150, 0.28));
+            filter: blur(12px);
+            pointer-events: none;
+            opacity: 0;
+        }
+        .we-cloud--big { top: 22%; left: -15%; width: 320px; height: 120px; animation: cloudDrift 18s linear infinite; }
+        .we-cloud--small { top: 30%; left: 80%; width: 140px; height: 60px; animation: cloudDrift2 22s linear infinite reverse; }
+        @keyframes cloudDrift { from { transform: translateX(-20%); } to { transform: translateX(130vw); } }
+        @keyframes cloudDrift2 { from { transform: translateX(130vw); } to { transform: translateX(-20%); } }
+        @keyframes cloudDrift3 { from { transform: translateX(-20%); } to { transform: translateX(130vw); } }
+        .weather-layer[data-cond="clear"] .we-cloud--big,
+        .weather-layer[data-cond="partly"] .we-cloud--big { opacity: 1; }
+        .weather-layer[data-cond="overcast"] .we-cloud--big,
+        .weather-layer[data-cond="fog"] .we-cloud--big { opacity: 1; }
+        .weather-layer[data-cond="clear"] .we-cloud--medium,
+        .weather-layer[data-cond="partly"] .we-cloud--medium,
+        .weather-layer[data-cond="overcast"] .we-cloud--medium { opacity: 1; }
+        .weather-layer[data-cond="fog"] .we-cloud--small,
+        .weather-layer[data-cond="fog"] .we-cloud--tiny { opacity: 1; }
+
+        /* Капли дождя — тонкие вертикальные линии */
+        .we-raindrop {
+            position: absolute;
+            left: calc(50% + (Math.random() * 30 - 15)%);
+            width: 1.5px;
+            height: 36px;
+            background: linear-gradient(to bottom, rgba(180, 220, 255, 0), rgba(130, 180, 245, 0.9));
+            border-radius: 2px;
+            opacity: 0;
+            animation: rainFall linear infinite;
+        }
+        @keyframes rainFall { from { transform: translateY(-12%); opacity: 0; } to { transform: translateY(116%); opacity: 0.85; } }
+        .weather-layer[data-cond="rain"] .we-raindrop { opacity: 0.6; animation-duration: 0.8s; }
+        .weather-layer[data-cond="storm"] .we-raindrop { opacity: 0.9; animation-duration: 0.5s; }
+
+        /* Снежинки — маленькие белые точки с легким склонением */
+        .we-snowflake {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            opacity: 0;
+            animation: snowFall linear infinite;
+            will-change: transform;
+        }
+        @keyframes snowFall { from { transform: translate(0, -4%); opacity: 0; } to { transform: translate(var(--sway, 4px), 106%); opacity: 0.85; } }
+        .weather-layer[data-cond="snow"] .we-snowflake { opacity: 0.7; }
+        .weather-layer[data-cond="overcast"] .we-snowflake { opacity: 0.2; animation-duration: 20s; }
+
+        /* Молния — зигзаговая линия с миганием */
+        .we-bolt {
+            position: absolute;
+            top: 28%;
+            left: 28%;
+            width: 2px;
+            height: 48px;
+            background: linear-gradient(to bottom, #f0f, #aac 70%);
+            clip-path: polygon(50% 0, 35% 0, 42% 28%, 28% 34%, 50% 54%, 72% 40%, 66% 86%, 58% 82%);
+            opacity: 0;
+            animation: boltFlash 10s linear infinite;
+        }
+        @keyframes boltFlash { 0%, 100% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: 0.3; } 35% { opacity: 1; } 100% { opacity: 0; } }
+        .weather-layer[data-cond="storm"] .we-bolt { opacity: 1; }
+
+        /* ---- условия по умолчанию, если data-cond не совпадает ---- */
+        .weather-layer[data-cond=""] .we-sun,
+        .weather-layer[data-cond="clear"] .we-cloud--big,
+        .weather-layer[data-cond=""] .we-cloud--big { opacity: 0; }
+
+        /* Фон страницы меняется в зависимости от текущей погоды в Москве */
+        body[data-cond="clear"] { background: linear-gradient(170deg, #f0c878 0%, #6e5a3e 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
+        body[data-cond="partly"] { background: linear-gradient(170deg, #8da9c4 0%, #5c6270 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
+        body[data-cond="overcast"] { background: linear-gradient(170deg, #5c6270 0%, #474d5a 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
+        body[data-cond="fog"] { background: linear-gradient(170deg, #6b7280 0%, #4b5563 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
+        body[data-cond="rain"] { background: linear-gradient(170deg, #3a4b6b 0%, #2a354a 45%, #1a212e 100%) !important; background-color: #1a212e !important; }
+        body[data-cond="snow"] { background: linear-gradient(170deg, #eef2f7 0%, #b8c4d0 45%, #8a97a5 100%) !important; background-color: #8a97a5 !important; }
+        body[data-cond="storm"] { background: linear-gradient(170deg, #1a1a2e 0%, #16213e 45%, #0f3460 100%) !important; background-color: #0f3460 !important; }
+
+        @media (prefers-reduced-motion: reduce) {
+            body[data-cond] { transition: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -1522,6 +1801,27 @@
 
         <div class="divider"></div>
         <div class="footer">Strategy in the game. Strategy in the market.</div>
+    </div>
+
+    <!-- ================= ПОГОДА: фон + виджет (Москва) ================= -->
+    <div class="weather-layer" id="weatherLayer" aria-hidden="true">
+        <div class="weather-glow" id="weatherGlow"></div>
+        <div class="weather-sky" id="weatherSky" aria-hidden="true">
+            <div class="we-sun" id="weatherSun"></div>
+        </div>
+        <div class="weather-clouds" id="weatherClouds"></div>
+        <div class="weather-fog" id="weatherFog"></div>
+        <div class="weather-rain" id="weatherRain"></div>
+        <div class="weather-snow" id="weatherSnow"></div>
+        <div class="weather-storm" id="weatherStorm"></div>
+        <div class="weather-bolt" id="weatherBolt"></div>
+    </div>
+
+    <div class="weather" id="weather" role="status" aria-live="polite">
+        <span class="weather-city">📍 Москва</span>
+        <span class="weather-time" id="weatherTime">--:--</span>
+        <span class="weather-state" id="weatherState">Загрузка</span>
+        <span class="weather-update" id="weatherUpdate">—</span>
     </div>
 
     <script>
@@ -2664,6 +2964,283 @@
             window.addEventListener('resize', update);
             setInterval(update, 350);      /* сторож: в сонных вкладках живы только таймеры */
             update();
+        })();
+    </script>
+
+    <script>
+        /* ================= ПОГОДА: Москва (Open-Meteo) ================= */
+        (function () {
+            const sky = document.getElementById('weatherSky');
+            const sunEl = document.getElementById('weatherSun');
+            const cloudSky = document.getElementById('weatherClouds');
+            const rainSky = document.getElementById('weatherRain');
+            const snowSky = document.getElementById('weatherSnow');
+            const stormSky = document.getElementById('weatherStorm');
+            const boltSky = document.getElementById('weatherBolt');
+            const timeEl = document.getElementById('weatherTime');
+            const stateEl = document.getElementById('weatherState');
+            const updEl = document.getElementById('weatherUpdate');
+
+            const MOW = { lat: 55.75, lon: 37.61 };
+            let lastFetchMs = 0;   /* время последнего обращения к API (успешного или неудачного) */
+            const reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+            function labelFor(code) {
+                if (code === 0) return 'Ясно';
+                if (code === 1 || code === 2) return 'Переменная облачность';
+                if (code === 3) return 'Облачно';
+                if (code === 45 || code === 48) return 'Туман';
+                if ((code >= 51 && code <= 57) || (code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return 'Дождь';
+                if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'Снег';
+                if (code >= 95) return 'Гроза';
+                return 'Пасмурно';
+            }
+
+            function condFor(code) {
+                if (code === 0) return 'clear';
+                if (code === 1 || code === 2) return 'partly';
+                if (code === 3) return 'overcast';
+                if (code === 45 || code === 48) return 'fog';
+                if ((code >= 51 && code <= 57) || (code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+                if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snow';
+                if (code >= 95) return 'storm';
+                return 'overcast';
+            }
+
+            function setStyle(id, props) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                for (const k in props) el.style[k] = props[k];
+            }
+
+            function createEl(tag, props) {
+                const e = document.createElement(tag);
+                for (const k in props) e.style[k] = props[k];
+                return e;
+            }
+
+            function spawnSun() {
+                if (!sunEl) return;
+                // Create the sun element if it doesn't exist
+                if (!sunEl) {
+                    sunEl = document.createElement('div');
+                }
+                if (reducedMotion) { setStyle('weatherSun', { opacity: 0.9, transform: 'scale(1)' }); return; }
+                // Main sun disc — 140px to match CSS
+                sunEl.style.cssText = `
+                    position:absolute;
+                    top:12%;right:14%;
+                    width:140px;height:140px;
+                    border-radius:50%;
+                    background:radial-gradient(circle at 30% 30%, #fffef0, #fff9c4 30%, #ffe066 60%, #fdaf3a 100%);
+                    filter:drop-shadow(0 0 16px #fff9a0) drop-shadow(0 0 32px #ffd040);
+                    opacity:1;
+                `;
+                // Add a secondary corona glow layer
+                if (!sunEl.querySelector('.we-sun-corona')) {
+                    const corona = document.createElement('div');
+                    corona.className = 'we-sun-corona';
+                    corona.style.cssText = `
+                        position:absolute;inset:-20%;
+                        border-radius:50%;
+                        background:radial-gradient(circle, rgba(255,230,120,0.15) 0%, rgba(255,200,60,0) 70%);
+                        pointer-events:none;
+                        animation:sunCorona 6s ease-in-out infinite;
+                    `;
+                    sunEl.appendChild(corona);
+                }
+                sunEl.style.opacity = '1';
+            }
+
+            function spawnClouds() {
+                if (reducedMotion) return;
+                cloudSky.innerHTML = '';
+                const defs = [
+                    { top: '15%', left: '-12%', w: 380, h: 140, dur: 20, delay: 0, clazz: 'we-cloud--big' },
+                    { top: '28%', left: '75%', w: 280, h: 100, dur: 24, delay: -10, clazz: 'we-cloud--medium' },
+                    { top: '38%', left: '60%', w: 220, h: 80, dur: 26, delay: -20, clazz: 'we-cloud--small' },
+                    { top: '18%', left: '90%', w: 180, h: 70, dur: 28, delay: -30, clazz: 'we-cloud--tiny' }
+                ];
+                defs.forEach(function (d) {
+                    const c = document.createElement('div');
+                    c.className = 'we-cloud ' + d.clazz;
+                    c.style.cssText = `
+                        position:absolute;
+                        top:${d.top};left:${d.left};
+                        width:${d.w}px;height:${d.h}px;
+                        background:linear-gradient(180deg, rgba(200,210,230,0.45), rgba(120,130,150,0.28));
+                        filter:blur(14px);
+                        pointer-events:none;
+                        opacity:0;
+                        animation:cloudDrift ${d.dur}s linear infinite;
+                    `;
+                    if (d.clazz === 'we-cloud--big') {
+                        c.style.animationName = 'cloudDrift';
+                    } else if (d.clazz === 'we-cloud--medium') {
+                        c.style.animationName = 'cloudDrift';
+                    } else if (d.clazz === 'we-cloud--small') {
+                        c.style.animationName = 'cloudDrift2';
+                    } else {
+                        c.style.animationName = 'cloudDrift3';
+                    }
+                    cloudSky.appendChild(c);
+                });
+            }
+
+            function spawnRain() {
+                if (reducedMotion) return;
+                rainSky.innerHTML = '';
+                // More drops for full-screen coverage
+                const dropCount = 70;
+                for (let i = 0; i < dropCount; i++) {
+                    const d = document.createElement('span');
+                    d.className = 'we-raindrop';
+                    const left = Math.random() * 100;
+                    const height = 28 + Math.random() * 20; // varied drop lengths
+                    const opacity = 0.5 + Math.random() * 0.4;
+                    d.style.cssText = `
+                        position:absolute;
+                        left:${left}%;
+                        width:1.5px;height:${height}px;
+                        background:linear-gradient(to bottom, rgba(180,220,255,0), rgba(130,180,245,${opacity}));
+                        border-radius:2px;
+                        opacity:0;
+                        animation:rainFall linear infinite;
+                    `;
+                    d.style.animationDelay = (-Math.random() * 3) + 's';
+                    d.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+                    rainSky.appendChild(d);
+                }
+            }
+
+            function spawnSnow() {
+                if (reducedMotion) return;
+                snowSky.innerHTML = '';
+                // More flakes for full-screen coverage
+                const flakeCount = 60;
+                for (let i = 0; i < flakeCount; i++) {
+                    const d = document.createElement('span');
+                    d.className = 'we-snowflake';
+                    const left = Math.random() * 100;
+                    const sway = 4 + Math.random() * 8;
+                    d.style.cssText = `
+                        position:absolute;
+                        left:${left}%;
+                        width:5px;height:5px;
+                        border-radius:50%;
+                        background:rgba(255,255,255,0.9);
+                        opacity:0;
+                        animation:snowFall linear infinite;
+                    `;
+                    d.style.setProperty('--sway', sway + 'px');
+                    d.style.animationDuration = (6 + Math.random() * 7) + 's';
+                    d.style.animationDelay = (-Math.random() * 12) + 's';
+                    snowSky.appendChild(d);
+                }
+            }
+
+            function spawnBolt() {
+                if (reducedMotion) return;
+                boltSky.style.cssText = `
+                    position:absolute;
+                    top:28%;left:28%;
+                    width:2px;height:48px;
+                    background:linear-gradient(to bottom, #f0f, #aac 70%);
+                    clip-path:polygon(50% 0,35% 0,42% 28%,28% 34%,50% 54%,72% 40%,66% 86%,58% 82%);
+                    opacity:1;
+                    animation:boltFlash 10s linear infinite;
+                `;
+                boltSky.style.animation = 'boltFlash 10s linear infinite';
+            }
+
+            function applyCond(cond) {
+                // reset visibility first
+                if (sunEl) sunEl.style.opacity = '0';
+                if (cloudSky) cloudSky.innerHTML = '';
+                if (rainSky) rainSky.innerHTML = '';
+                if (snowSky) snowSky.innerHTML = '';
+                if (boltSky) boltSky.style.opacity = '0';
+
+                sky.dataset.cond = cond;
+                layer.dataset.cond = cond;
+                document.body.setAttribute('data-cond', cond);
+
+                if (cond === 'clear') {
+                    spawnSun();
+                    spawnClouds(); // big cloud drifts across
+                } else if (cond === 'partly') {
+                    spawnSun(); // sun dimmed behind clouds
+                    spawnClouds();
+                } else if (cond === 'overcast') {
+                    spawnClouds();
+                } else if (cond === 'fog') {
+                    spawnClouds();
+                } else if (cond === 'rain') {
+                    spawnRain();
+                } else if (cond === 'snow') {
+                    spawnSnow();
+                } else if (cond === 'storm') {
+                    spawnRain(); // heavy rain implied
+                    spawnBolt();
+                }
+            }
+
+            function render(temp, code) {
+                applyCond(condFor(code));
+                if (stateEl) stateEl.textContent = labelFor(code) + ' · ' + Math.round(temp) + '°';
+            }
+
+            async function loadWeather() {
+                lastFetchMs = Date.now();
+                const ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+                const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;   /* таймаут 10 с: висящий requests не держит «Загрузку» вечно */
+                try {
+                    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + MOW.lat + '&longitude=' + MOW.lon + '&current=temperature_2m,weather_code';
+                    const r = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+                    const d = await r.json();
+                    const c = d && d.current;
+                    if (c) {
+                        render(Math.round(c.temperature_2m), c.weather_code);
+                        if (updEl) updEl.textContent = 'обновлено ' + fmtMsk(new Date());
+                        return;
+                    }
+                    /* нет данных — безопасный фолбэк: не оставляем «Загрузка» вечно */
+                    applyCond('overcast');
+                    if (stateEl) stateEl.textContent = 'Нет данных';
+                    if (updEl) updEl.textContent = '—';
+                } catch (e) {
+                    applyCond('overcast');
+                    if (stateEl) stateEl.textContent = 'Нет данных';
+                    if (updEl) updEl.textContent = '—';
+                } finally {
+                    if (timer) clearTimeout(timer);
+                }
+            }
+
+            function visibilityRefresh() {
+                /* сонная вкладка: setInterval может не тикать — по возвращении дотягиваем данные, если прошло > 10 мин */
+                if (!document.hidden && Date.now() - lastFetchMs > 10 * 60 * 1000) loadWeather();
+            }
+            document.addEventListener('visibilitychange', visibilityRefresh);
+            window.addEventListener('pageshow', visibilityRefresh);
+
+            function tickTime() {
+                try {
+                    const t = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
+                    if (timeEl) timeEl.textContent = t;
+                } catch (e) { }
+            }
+
+            function fmtMsk(d) {
+                try {
+                    return new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+                } catch (e) { return '--:--'; }
+            }
+
+            tickTime();
+            setInterval(tickTime, 30000);
+            loadWeather();
+            setInterval(loadWeather, 30 * 60 * 1000);
         })();
     </script>
 </body>
