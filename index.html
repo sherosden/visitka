@@ -2971,6 +2971,7 @@
         /* ================= ПОГОДА: Москва (Open-Meteo) ================= */
         (function () {
             const sky = document.getElementById('weatherSky');
+            const layer = document.getElementById('weatherLayer');   /* фон .weather-layer — CSS переключает погоду по его data-cond */
             const sunEl = document.getElementById('weatherSun');
             const cloudSky = document.getElementById('weatherClouds');
             const rainSky = document.getElementById('weatherRain');
