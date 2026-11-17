@@ -1540,6 +1540,11 @@
         .weather-layer[data-cond="clear"] .we-cloud--big,
         .weather-layer[data-cond=""] .we-cloud--big { opacity: 0; }
 
+        /* Пока погода не получена, атрибута data-cond нет вообще: небо скрыто,
+           чтобы в режиме ожидания был просто серый фон, а не «солнечно».
+           (базовое .we-sun имеет opacity: 1 — до первого applyCond оно и светило) */
+        .weather-layer:not([data-cond]) { display: none; }
+
         /* Фон страницы меняется в зависимости от текущей погоды в Москве */
         body[data-cond="clear"] { background: linear-gradient(170deg, #f0c878 0%, #6e5a3e 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
         body[data-cond="partly"] { background: linear-gradient(170deg, #8da9c4 0%, #5c6270 45%, #2a2438 100%) !important; background-color: #2a2438 !important; }
