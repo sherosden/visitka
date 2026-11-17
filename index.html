@@ -1417,6 +1417,7 @@
             .weather { top: 8px; right: max(8px, env(safe-area-inset-right, 0px)); padding: 7px 10px; border-radius: 12px; }
             .weather-time { font-size: 16px; }
             .weather-state { font-size: 11px; }
+            .weather-update { font-size: 8px; letter-spacing: 0.3px; }   /* метка обновления не раздувает чип */
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1550,6 +1551,47 @@
 
         @media (prefers-reduced-motion: reduce) {
             body[data-cond] { transition: none !important; }
+        }
+
+        /* ================= УВАЖЕНИЕ К prefers-reduced-motion ================= */
+        /* Конечный статичный кадр: никаких переходов, задержек и бесконечных
+           анимаций — контент виден сразу и в финальном состоянии. */
+        @media (prefers-reduced-motion: reduce) {
+            html.js .reveal,
+            html.js .study-block .book,
+            html.js .sched-wrap,
+            .card,
+            .piece,
+            .fig,
+            .replay-btn,
+            .weather,
+            .weather-layer *,
+            .weather-glow,
+            .we-sun,
+            .we-sun-corona,
+            .we-cloud,
+            .we-raindrop,
+            .we-snowflake,
+            .we-bolt,
+            .weather-fog span {
+                transition: none !important;
+                animation: none !important;
+            }
+
+            /* задержки появления «плюшек» тоже снимаем — иначе они ждут секунды */
+            html.js .study-block .book,
+            html.js .study-block.visible .book,
+            html.js .study-block.visible .bk1,
+            html.js .study-block.visible .bk2,
+            html.js .study-block.visible .bk3,
+            html.js .study-block.visible .bk4,
+            html.js .sched-wrap {
+                transition-delay: 0s !important;
+            }
+
+            /* статичное «солнечное» свечение и неподвижные слои погоды */
+            .weather-layer[data-cond="clear"] .weather-glow { display: block; opacity: 0.5; animation: none !important; }
+            .we-sun { transform: scale(1); opacity: 0.9; }
         }
     </style>
 </head>
@@ -1830,6 +1872,8 @@
             const grid = document.getElementById('grid');
             const layer = document.getElementById('piecesLayer');
             const capbar = document.getElementById('capbar');
+            /* reduced-motion: партия не проигрывается — сразу ставим финальный кадр */
+            const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
             /* ---- доска ---- */
             for (let r = 7; r >= 0; r--) {
@@ -2626,10 +2670,54 @@
                 }
             }
 
+            /* ---- reduced-motion: мгновенный финальный кадр партии (мат 22. Фg4#) ---- */
+            function placeStatic() {
+                video.classList.add('instant');   /* без переходов: фигуры сразу на месте */
+                placeAll();
+                void video.offsetWidth;
+                video.classList.remove('instant');
+            }
+
+            function finalFrameInstant() {
+                /* доска могла быть ещё не отрисована — пробуем несколько кадров подряд */
+                placeStatic();
+                let tries = 3;
+                (function retry() {
+                    if (cellMap.length || tries-- <= 0) return;
+                    requestAnimationFrame(function () { placeStatic(); retry(); });
+                })();
+
+                /* проигрываем сценарий «мгновенно»: только конечные позиции и взятия */
+                steps.forEach(function (step) {
+                    const mover = find(step.color, step.type, step.from[0], step.from[1]);
+                    if (step.capture) {
+                        const victim = pieces.find(function (p) {
+                            return !p.dead && p !== mover && p.color !== step.color &&
+                                p.f === step.to[0] && p.r === step.to[1];
+                        });
+                        if (victim) { victim.dead = true; victim.el.classList.add('off'); }
+                    }
+                    if (mover) { mover.f = step.to[0]; mover.r = step.to[1]; }
+                    if (step.rook) {
+                        const rook = find(step.color, 'R', step.rook.from[0], step.rook.from[1]);
+                        if (rook) { rook.f = step.rook.to[0]; rook.r = step.rook.to[1]; }
+                    }
+                });
+
+                /* мат: чёрный король «сгорает» — в кадре его уже нет */
+                const bk = pieces.find(function (p) { return !p.dead && p.color === 'b' && p.type === 'K'; });
+                if (bk) { bk.dead = true; bk.el.classList.add('off'); }
+
+                placeStatic();
+                setCaption('Мат. Партия окончена', false);
+                replayBtn.classList.remove('show');   /* кнопка «повторить» в статике не нужна */
+            }
+
             /* старт партии: когда арена долистана до экрана; арена ушла — пауза */
             async function startLoop() {
                 if (loopStarted) return;
                 loopStarted = true;
+                if (reduceMotion) { finalFrameInstant(); return; }   /* статичный финальный кадр */
                 wakeChess();
                 await sleep(400);             /* момент на проявление секции */
                 loop();
@@ -2639,8 +2727,9 @@
                 const vh = window.innerHeight || document.documentElement.clientHeight;
                 const r = video.getBoundingClientRect();
                 const onScreen = r.top < vh * 0.9 && r.bottom > vh * 0.05;
-                if (onScreen) { if (!loopStarted) startLoop(); else wakeChess(); }
-                else if (loopStarted) chessOn = false;
+                if (onScreen) { if (!loopStarted) startLoop(); else if (!reduceMotion) wakeChess(); }
+                else if (loopStarted && !reduceMotion) chessOn = false;
+                if (reduceMotion && onScreen && loopStarted && !cellMap.length) placeStatic();
             }
 
             window.addEventListener('scroll', syncChess, { passive: true });
@@ -2976,7 +3065,7 @@
             const cloudSky = document.getElementById('weatherClouds');
             const rainSky = document.getElementById('weatherRain');
             const snowSky = document.getElementById('weatherSnow');
-            const stormSky = document.getElementById('weatherStorm');
+            const fogSky = document.getElementById('weatherFog');
             const boltSky = document.getElementById('weatherBolt');
             const timeEl = document.getElementById('weatherTime');
             const stateEl = document.getElementById('weatherState');
@@ -2984,6 +3073,10 @@
 
             const MOW = { lat: 55.75, lon: 37.61 };
             let lastFetchMs = 0;   /* время последнего обращения к API (успешного или неудачного) */
+            let loading = false;   /* защита от наложения запросов (таймер + visibilitychange) */
+            let retries = 0;       /* сколько быстрых повторов уже сделано после сбоя */
+            const MAX_RETRY = 2;   /* после сбоя пробуем ещё дважды … */
+            const RETRY_MS = 20000;/* … с паузой 20 с, чтобы не долбить API подряд */
             const reducedMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
             function labelFor(code) {
@@ -3014,20 +3107,11 @@
                 for (const k in props) el.style[k] = props[k];
             }
 
-            function createEl(tag, props) {
-                const e = document.createElement(tag);
-                for (const k in props) e.style[k] = props[k];
-                return e;
-            }
-
             function spawnSun() {
                 if (!sunEl) return;
-                // Create the sun element if it doesn't exist
-                if (!sunEl) {
-                    sunEl = document.createElement('div');
-                }
-                if (reducedMotion) { setStyle('weatherSun', { opacity: 0.9, transform: 'scale(1)' }); return; }
-                // Main sun disc — 140px to match CSS
+                /* reduced-motion: неподвижное солнце — это и есть статичный кадр */
+                if (reducedMotion) { setStyle('weatherSun', { opacity: 0.9, transform: 'scale(1)', animation: 'none' }); return; }
+                /* основной диск солнца — 140px, как в CSS */
                 sunEl.style.cssText = `
                     position:absolute;
                     top:12%;right:14%;
@@ -3037,7 +3121,7 @@
                     filter:drop-shadow(0 0 16px #fff9a0) drop-shadow(0 0 32px #ffd040);
                     opacity:1;
                 `;
-                // Add a secondary corona glow layer
+                /* второй слой — корона (мягкое свечение вокруг диска) */
                 if (!sunEl.querySelector('.we-sun-corona')) {
                     const corona = document.createElement('div');
                     corona.className = 'we-sun-corona';
@@ -3050,116 +3134,136 @@
                     `;
                     sunEl.appendChild(corona);
                 }
+                /* возвращаем CSS-анимацию пульсации (её снял applyCond) */
+                sunEl.style.animation = '';
                 sunEl.style.opacity = '1';
             }
 
+            /* облака: набор для анимации и отдельная раскладка для статичного кадра */
+            const CLOUDS = [
+                { top: '15%', left: '-12%', w: 380, h: 140, dur: 20, delay: 0, clazz: 'we-cloud--big', anim: 'cloudDrift' },
+                { top: '28%', left: '75%', w: 280, h: 100, dur: 24, delay: -10, clazz: 'we-cloud--medium', anim: 'cloudDrift' },
+                { top: '38%', left: '60%', w: 220, h: 80, dur: 26, delay: -20, clazz: 'we-cloud--small', anim: 'cloudDrift2' },
+                { top: '18%', left: '90%', w: 180, h: 70, dur: 28, delay: -30, clazz: 'we-cloud--tiny', anim: 'cloudDrift3' }
+            ];
+            const CLOUDS_STATIC = [
+                { top: '14%', left: '-4%', w: 380, h: 140, clazz: 'we-cloud--big' },
+                { top: '26%', left: '30%', w: 280, h: 100, clazz: 'we-cloud--medium' },
+                { top: '42%', left: '56%', w: 220, h: 80, clazz: 'we-cloud--small' },
+                { top: '18%', left: '76%', w: 180, h: 70, clazz: 'we-cloud--tiny' }
+            ];
+            const CLOUD_BG = 'linear-gradient(180deg, rgba(200,210,230,0.45), rgba(120,130,150,0.28))';
+
             function spawnClouds() {
-                if (reducedMotion) return;
                 cloudSky.innerHTML = '';
-                const defs = [
-                    { top: '15%', left: '-12%', w: 380, h: 140, dur: 20, delay: 0, clazz: 'we-cloud--big' },
-                    { top: '28%', left: '75%', w: 280, h: 100, dur: 24, delay: -10, clazz: 'we-cloud--medium' },
-                    { top: '38%', left: '60%', w: 220, h: 80, dur: 26, delay: -20, clazz: 'we-cloud--small' },
-                    { top: '18%', left: '90%', w: 180, h: 70, dur: 28, delay: -30, clazz: 'we-cloud--tiny' }
-                ];
-                defs.forEach(function (d) {
+                const list = reducedMotion ? CLOUDS_STATIC : CLOUDS;
+                list.forEach(function (d) {
                     const c = document.createElement('div');
                     c.className = 'we-cloud ' + d.clazz;
-                    c.style.cssText = `
-                        position:absolute;
-                        top:${d.top};left:${d.left};
-                        width:${d.w}px;height:${d.h}px;
-                        background:linear-gradient(180deg, rgba(200,210,230,0.45), rgba(120,130,150,0.28));
-                        filter:blur(14px);
-                        pointer-events:none;
-                        opacity:0;
-                        animation:cloudDrift ${d.dur}s linear infinite;
-                    `;
-                    if (d.clazz === 'we-cloud--big') {
-                        c.style.animationName = 'cloudDrift';
-                    } else if (d.clazz === 'we-cloud--medium') {
-                        c.style.animationName = 'cloudDrift';
-                    } else if (d.clazz === 'we-cloud--small') {
-                        c.style.animationName = 'cloudDrift2';
+                    if (reducedMotion) {
+                        /* статичный кадр: облако стоит на месте и остаётся видимым */
+                        c.style.cssText = 'position:absolute;top:' + d.top + ';left:' + d.left +
+                            ';width:' + d.w + 'px;height:' + d.h + 'px;background:' + CLOUD_BG +
+                            ';filter:blur(14px);pointer-events:none;opacity:1;animation:none;';
                     } else {
-                        c.style.animationName = 'cloudDrift3';
+                        /* opacity не задаём: видимостью управляет CSS по data-cond */
+                        c.style.cssText = 'position:absolute;top:' + d.top + ';left:' + d.left +
+                            ';width:' + d.w + 'px;height:' + d.h + 'px;background:' + CLOUD_BG +
+                            ';filter:blur(14px);pointer-events:none;' +
+                            'animation:' + d.anim + ' ' + d.dur + 's linear infinite;';
+                        c.style.animationDelay = d.delay + 's';
                     }
                     cloudSky.appendChild(c);
                 });
             }
 
+            function spawnFog() {
+                if (!fogSky) return;
+                fogSky.innerHTML = '';
+                /* дымка: горизонтальные полосы; при reduced-motion — неподвижные */
+                [18, 34, 52].forEach(function (top, i) {
+                    const s = document.createElement('span');
+                    s.style.top = top + '%';
+                    s.style.opacity = (0.55 + i * 0.12).toFixed(2);
+                    if (reducedMotion) {
+                        s.style.animation = 'none';
+                    } else {
+                        s.style.animationDuration = (26 + i * 9) + 's';
+                        s.style.animationDelay = (-i * 7) + 's';
+                    }
+                    fogSky.appendChild(s);
+                });
+            }
+
             function spawnRain() {
-                if (reducedMotion) return;
                 rainSky.innerHTML = '';
-                // More drops for full-screen coverage
-                const dropCount = 70;
+                /* капли: при reduced-motion «висят» по всему экрану неподвижно */
+                const dropCount = reducedMotion ? 40 : 70;
                 for (let i = 0; i < dropCount; i++) {
                     const d = document.createElement('span');
                     d.className = 'we-raindrop';
-                    const left = Math.random() * 100;
-                    const height = 28 + Math.random() * 20; // varied drop lengths
-                    const opacity = 0.5 + Math.random() * 0.4;
-                    d.style.cssText = `
-                        position:absolute;
-                        left:${left}%;
-                        width:1.5px;height:${height}px;
-                        background:linear-gradient(to bottom, rgba(180,220,255,0), rgba(130,180,245,${opacity}));
-                        border-radius:2px;
-                        opacity:0;
-                        animation:rainFall linear infinite;
-                    `;
-                    d.style.animationDelay = (-Math.random() * 3) + 's';
-                    d.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+                    const left = (Math.random() * 100).toFixed(1);
+                    const height = Math.round(28 + Math.random() * 20);   /* разная длина капель */
+                    const opacity = (0.5 + Math.random() * 0.4).toFixed(2);
+                    const bg = 'linear-gradient(to bottom, rgba(180,220,255,0), rgba(130,180,245,' + opacity + '))';
+                    if (reducedMotion) {
+                        d.style.cssText = 'position:absolute;left:' + left + '%;top:' + (Math.random() * 96).toFixed(1) +
+                            '%;width:1.5px;height:' + height + 'px;background:' + bg +
+                            ';border-radius:2px;opacity:' + opacity + ';animation:none;';
+                    } else {
+                        d.style.cssText = 'position:absolute;left:' + left + '%;width:1.5px;height:' + height +
+                            'px;background:' + bg + ';border-radius:2px;opacity:0;animation:rainFall linear infinite;';
+                        d.style.animationDelay = (-Math.random() * 3) + 's';
+                        d.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+                    }
                     rainSky.appendChild(d);
                 }
             }
 
             function spawnSnow() {
-                if (reducedMotion) return;
                 snowSky.innerHTML = '';
-                // More flakes for full-screen coverage
-                const flakeCount = 60;
+                /* снежинки: при reduced-motion неподвижны, но покрывают весь экран */
+                const flakeCount = reducedMotion ? 36 : 60;
                 for (let i = 0; i < flakeCount; i++) {
                     const d = document.createElement('span');
                     d.className = 'we-snowflake';
-                    const left = Math.random() * 100;
-                    const sway = 4 + Math.random() * 8;
-                    d.style.cssText = `
-                        position:absolute;
-                        left:${left}%;
-                        width:5px;height:5px;
-                        border-radius:50%;
-                        background:rgba(255,255,255,0.9);
-                        opacity:0;
-                        animation:snowFall linear infinite;
-                    `;
-                    d.style.setProperty('--sway', sway + 'px');
-                    d.style.animationDuration = (6 + Math.random() * 7) + 's';
-                    d.style.animationDelay = (-Math.random() * 12) + 's';
+                    const left = (Math.random() * 100).toFixed(1);
+                    if (reducedMotion) {
+                        d.style.cssText = 'position:absolute;left:' + left + '%;top:' + (Math.random() * 96).toFixed(1) +
+                            '%;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.9);' +
+                            'opacity:0.7;animation:none;';
+                    } else {
+                        d.style.cssText = 'position:absolute;left:' + left + '%;width:5px;height:5px;' +
+                            'border-radius:50%;background:rgba(255,255,255,0.9);opacity:0;' +
+                            'animation:snowFall linear infinite;';
+                        d.style.setProperty('--sway', (4 + Math.random() * 8).toFixed(1) + 'px');
+                        d.style.animationDuration = (6 + Math.random() * 7) + 's';
+                        d.style.animationDelay = (-Math.random() * 12) + 's';
+                    }
                     snowSky.appendChild(d);
                 }
             }
 
             function spawnBolt() {
-                if (reducedMotion) return;
-                boltSky.style.cssText = `
-                    position:absolute;
-                    top:28%;left:28%;
-                    width:2px;height:48px;
-                    background:linear-gradient(to bottom, #f0f, #aac 70%);
-                    clip-path:polygon(50% 0,35% 0,42% 28%,28% 34%,50% 54%,72% 40%,66% 86%,58% 82%);
-                    opacity:1;
-                    animation:boltFlash 10s linear infinite;
-                `;
-                boltSky.style.animation = 'boltFlash 10s linear infinite';
+                /* при reduced-motion молния просто висит неподвижно — статичный кадр грозы */
+                boltSky.style.cssText = 'position:absolute;' +
+                    'top:28%;left:28%;' +
+                    'width:2px;height:48px;' +
+                    'background:linear-gradient(to bottom, #f0f, #aac 70%);' +
+                    'clip-path:polygon(50% 0,35% 0,42% 28%,28% 34%,50% 54%,72% 40%,66% 86%,58% 82%);' +
+                    'opacity:1;' +
+                    (reducedMotion ? 'animation:none;' : 'animation:boltFlash 10s linear infinite;');
             }
 
             function applyCond(cond) {
                 // reset visibility first
-                if (sunEl) sunEl.style.opacity = '0';
+                /* animation:none — иначе sunPulse перебивает opacity:0 и солнце
+                   светит в дождь/снег/грозу (CSS-анимации важнее inline-стилей) */
+                if (sunEl) { sunEl.style.opacity = '0'; sunEl.style.animation = 'none'; }
                 if (cloudSky) cloudSky.innerHTML = '';
                 if (rainSky) rainSky.innerHTML = '';
                 if (snowSky) snowSky.innerHTML = '';
+                if (fogSky) fogSky.innerHTML = '';
                 if (boltSky) boltSky.style.opacity = '0';
 
                 sky.dataset.cond = cond;
@@ -3176,6 +3280,7 @@
                     spawnClouds();
                 } else if (cond === 'fog') {
                     spawnClouds();
+                    spawnFog();
                 } else if (cond === 'rain') {
                     spawnRain();
                 } else if (cond === 'snow') {
@@ -3192,29 +3297,39 @@
             }
 
             async function loadWeather() {
+                if (loading) return;          /* параллельные запросы не нужны */
+                loading = true;
                 lastFetchMs = Date.now();
+                let ok = false;
                 const ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-                const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;   /* таймаут 10 с: висящий requests не держит «Загрузку» вечно */
+                const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;   /* таймаут 10 с: зависший запрос не держит «Загрузку» вечно */
                 try {
                     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + MOW.lat + '&longitude=' + MOW.lon + '&current=temperature_2m,weather_code';
                     const r = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
                     const d = await r.json();
                     const c = d && d.current;
                     if (c) {
-                        render(Math.round(c.temperature_2m), c.weather_code);
-                        if (updEl) updEl.textContent = 'обновлено ' + fmtMsk(new Date());
+                        render(c.temperature_2m, c.weather_code);
+                        if (updEl) { updEl.textContent = 'обновлено ' + fmtMsk(new Date()); updEl.dataset.ok = '1'; }
+                        retries = 0;
+                        ok = true;
                         return;
                     }
                     /* нет данных — безопасный фолбэк: не оставляем «Загрузка» вечно */
                     applyCond('overcast');
                     if (stateEl) stateEl.textContent = 'Нет данных';
-                    if (updEl) updEl.textContent = '—';
                 } catch (e) {
                     applyCond('overcast');
                     if (stateEl) stateEl.textContent = 'Нет данных';
-                    if (updEl) updEl.textContent = '—';
                 } finally {
+                    loading = false;
                     if (timer) clearTimeout(timer);
+                }
+                if (!ok) {
+                    /* время последнего удачного обновления не затираем — оно ещё актуально */
+                    if (updEl && !updEl.dataset.ok) updEl.textContent = '—';
+                    /* быстрый повтор: без него следующая попытка только через 30 минут */
+                    if (retries < MAX_RETRY) { retries++; setTimeout(loadWeather, RETRY_MS); }
                 }
             }
 
